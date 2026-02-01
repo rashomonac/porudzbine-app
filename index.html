@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v22 - Brzi Edit</title>
+    <title>Sistem v22.1 - Tanji Status</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -23,21 +23,23 @@
 
         .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
         .card-header { font-weight: 900; font-size: 13px; color: #000; text-transform: uppercase; }
-        .card-comment { font-size: 11px; color: #333; font-weight: 600; line-height: 1.2; margin: 3px 0; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 3px; }
-        .card-tags { font-size: 11px; font-weight: bold; }
-        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 6px 0; height: 80px; flex-shrink: 0; }
-        .card-images img { width: 100%; height: 38px; object-fit: cover; border-radius: 4px; }
+        .card-comment { font-size: 11px; color: #333; font-weight: 600; line-height: 1.1; margin: 2px 0; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 2px; }
+        .card-tags { font-size: 10px; font-weight: bold; opacity: 0.8; }
+        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 4px 0; height: 85px; flex-shrink: 0; }
+        .card-images img { width: 100%; height: 40px; object-fit: cover; border-radius: 4px; }
 
         .card-bottom { margin-top: auto; }
-        .status-bar { padding: 6px; text-align: center; }
+        .price-tag { font-weight: 900; font-size: 14px; color: #000; text-align: center; padding: 2px 0; }
+
+        /* TANJI STATUS BAR FIX */
+        .status-bar { padding: 2px; text-align: center; height: 20px; display: flex; align-items: center; }
         .bar-novo { background: #757575 !important; } .bar-radi { background: #1976d2 !important; } .bar-gotovo { background: #388e3c !important; }
-        .status-bar select { background: transparent; border: none; color: white !important; font-weight: 900; width: 100%; cursor: pointer; text-align: center; }
+        .status-bar select { background: transparent; border: none; color: white !important; font-weight: 900; font-size: 11px; width: 100%; cursor: pointer; text-align: center; padding: 0; margin: 0; }
         .status-bar option { background: white; color: black; }
 
-        .actions { display: flex; justify-content: space-around; padding: 6px 0; background: rgba(255,255,255,0.2); }
-        .actions span { cursor: pointer; font-size: 18px; }
+        .actions { display: flex; justify-content: space-around; padding: 4px 0; background: rgba(255,255,255,0.2); }
+        .actions span { cursor: pointer; font-size: 16px; }
 
-        /* EDIT MODAL - STILIZOVAN SA VIDLJIVIM LABELIMA */
         .modal-edit { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1001; }
         .edit-box { background: #1a1a1a; padding: 20px; border-radius: 12px; width: 300px; border: 1px solid #333; }
         .edit-label { color: #1976d2; font-size: 11px; font-weight: bold; display: block; margin-top: 8px; text-transform: uppercase; }
@@ -49,7 +51,7 @@
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0;">Sistem v22</h2>
+        <h2 style="color: #1976d2; margin: 0;">Sistem v22.1</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 40px;"></textarea>
         <div style="display: flex; gap: 5px;">
@@ -72,24 +74,14 @@
     <div class="modal-edit" id="editModal">
         <div class="edit-box">
             <h3 style="margin:0; color:#1976d2;">Izmeni stavku</h3>
-            
-            <span class="edit-label">Naziv Proizvoda</span>
-            <input id="editProizvod">
-            
-            <span class="edit-label">Komentar/Napomena</span>
-            <textarea id="editKomentar" style="height: 50px;"></textarea>
-            
+            <span class="edit-label">Naziv</span><input id="editProizvod">
+            <span class="edit-label">Napomena</span><textarea id="editKomentar" style="height: 50px;"></textarea>
             <div style="display: flex; gap: 5px;">
                 <div style="flex:1"><span class="edit-label">Pismo</span><select id="editPismo"><option>Ćirilica</option><option>Latinica</option></select></div>
                 <div style="flex:1"><span class="edit-label">Stil</span><select id="editStil"><option>Pisano</option><option>Štampano</option></select></div>
             </div>
-            
-            <span class="edit-label">Novi Rok Isporuke</span>
-            <input id="editRok">
-            
-            <span class="edit-label">Cena (RSD)</span>
-            <input id="editCena" type="number">
-            
+            <span class="edit-label">Novi Rok</span><input id="editRok">
+            <span class="edit-label">Cena</span><input id="editCena" type="number">
             <button class="primary" onclick="sacuvajEdit()">SAČUVAJ IZMENE</button>
             <button style="background: #444; margin-top: 8px;" onclick="document.getElementById('editModal').style.display='none'">OTKAŽI</button>
         </div>
@@ -107,7 +99,6 @@
                 const res = await fetch("/porudzbine");
                 const data = await res.json();
                 
-                // Osveži statistiku
                 const statsBody = document.getElementById("statsBody");
                 statsBody.innerHTML = "";
                 const imenaM = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Avg", "Sep", "Okt", "Nov", "Dec"];
@@ -123,7 +114,6 @@
                     statsBody.innerHTML += `<tr><td>${imenaM[mIdx]} ${gIdx}</td><td>${suma.toLocaleString()}</td></tr>`;
                 }
 
-                // Generiši kartice
                 const lista = document.getElementById("lista");
                 lista.innerHTML = "";
                 data.sort((a,b) => b.id - a.id).forEach(p => {
@@ -157,7 +147,7 @@
                         </div>`;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.error("Greška pri učitavanju"); }
+            } catch (e) { console.error("Greška"); }
         }
 
         function otvoriEdit(p) {
@@ -180,15 +170,13 @@
                 rok: document.getElementById("editRok").value,
                 cena: document.getElementById("editCena").value
             };
-
             await fetch(`/porudzbine/${trenutniEditId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
-
             document.getElementById("editModal").style.display = "none";
-            ucitajPorudzbine(); // Odmah osvežava karticu
+            ucitajPorudzbine();
         }
 
         async function dodajPorudzbinu() {
