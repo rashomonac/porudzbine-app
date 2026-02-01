@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine v3</title>
+    <title>Sistem za Porudžbine v4</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -13,129 +13,139 @@
         .card-form { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: #1a1a1a; padding: 20px; box-sizing: border-box; border-right: 1px solid #333; z-index: 100; overflow-y: auto; }
         input, textarea, select, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #333; margin-top: 10px; background: #252525; color: white; font-size: 14px; }
         button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; padding: 12px; }
-        .upload-label { font-size: 12px; color: #aaa; margin-top: 15px; display: block; }
+        
+        /* SORTIRANJE */
+        .sort-box { margin-top: 25px; padding-top: 15px; border-top: 1px solid #333; }
+        .sort-box p { font-size: 12px; color: #888; margin-bottom: 5px; }
+        .btn-sort { background: #333; font-size: 11px; padding: 6px; margin-top: 5px; cursor: pointer; border: 1px solid #444; }
+        .btn-sort:hover { background: #444; }
 
         /* LISTA KARTICA */
         #lista { margin-left: 300px; padding: 30px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 25px; }
 
         /* KARTICA 4x6 cm */
-        .order-card { 
-            width: 4cm; 
-            height: 6.5cm; 
-            color: #222; 
-            border-radius: 12px; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.6); 
-            box-sizing: border-box;
-            transition: transform 0.2s, background 0.3s;
-            overflow: hidden;
-        }
-        .order-card:hover { transform: scale(1.02); }
+        .order-card { width: 4cm; height: 6.5cm; color: #222; border-radius: 12px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 6px 15px rgba(0,0,0,0.6); box-sizing: border-box; transition: 0.2s; overflow: hidden; }
+        .card-content { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* UNUTRAŠNJI SADRŽAJ (PADDING) */
-        .card-content { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; }
-
-        /* STATUSNE BOJE (Kartica i Tamnija Podloga Statusa) */
-        /* Novo */
+        /* STATUSNE BOJE */
         .status-novo { background: #ffffff; border: 2px solid #ccc; }
         .status-novo .status-bar { background: #e0e0e0; color: #333; } 
-        /* U izradi */
         .status-radi { background: #d8ebff; border: 2px solid #2196f3; }
         .status-radi .status-bar { background: #90caf9; color: #0d47a1; }
-        /* Završeno */
         .status-gotovo { background: #dff3df; border: 2px solid #4caf50; }
         .status-gotovo .status-bar { background: #a5d6a7; color: #1b5e20; }
 
-        .card-header { font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .card-date { font-size: 13px; font-weight: bold; color: #444; margin-top: 5px; }
-        .card-tags { font-size: 11px; color: #555; font-style: italic; }
+        .card-header { font-weight: bold; font-size: 14px; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card-date { font-size: 12px; font-weight: bold; color: #444; margin-top: 3px; }
         
-        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 8px 0; }
-        .card-images img { width: 100%; height: 35px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
+        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 5px 0; }
+        .card-images img { width: 100%; height: 35px; object-fit: cover; border-radius: 4px; }
 
-        .price { font-weight: bold; color: #1565c0; font-size: 15px; }
+        .status-bar { padding: 6px; text-align: center; font-size: 11px; font-weight: bold; }
+        .status-bar select { background: transparent; border: none; color: inherit; font-weight: bold; padding: 0; width: auto; font-size: 11px; margin: 0; }
 
-        /* TAMNIJA PODLOGA ZA STATUS NA DNU */
-        .status-bar { padding: 8px; text-align: center; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-        .status-bar select { background: transparent; border: none; color: inherit; font-weight: bold; padding: 0; cursor: pointer; text-align: center; width: auto; }
-
-        .actions { display: flex; justify-content: space-between; margin-top: 5px; padding: 0 12px 8px 12px; }
-        .actions span { cursor: pointer; font-size: 18px; }
+        .actions { display: flex; justify-content: space-between; padding: 0 10px 8px 10px; }
+        .actions span { cursor: pointer; font-size: 16px; }
 
         /* MODALI */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-box { background: #1e1e1e; padding: 25px; border-radius: 15px; width: 320px; color: white; }
-        .modal img { max-width: 95%; max-height: 90vh; border-radius: 8px; }
+        .modal-box { background: #1e1e1e; padding: 20px; border-radius: 15px; width: 320px; color: white; max-height: 90vh; overflow-y: auto; }
+        .modal-box label { display: block; font-size: 12px; color: #1976d2; margin-top: 12px; font-weight: bold; }
+        .modal-box input, .modal-box textarea, .modal-box select { margin-top: 4px; }
     </style>
 </head>
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin-top: 0;">Nova Porudžbina</h2>
+        <h2 style="color: #1976d2; margin: 0 0 15px 0; font-size: 18px;">Nova Porudžbina</h2>
         <input id="proizvod" placeholder="Naziv proizvoda">
-        <textarea id="komentar" placeholder="Napomena..." style="height: 60px;"></textarea>
+        <textarea id="komentar" placeholder="Napomena..." style="height: 50px;"></textarea>
         <div style="display: flex; gap: 5px;">
             <select id="pismo"><option>Ćirilica</option><option>Latinica</option></select>
             <select id="stil"><option>Pisano</option><option>Štampano</option></select>
         </div>
         <input id="rok" placeholder="Rok isporuke">
         <input id="cena" type="number" placeholder="Cena (RSD)">
-        <label class="upload-label">Max 4 photos:</label>
-        <input id="slike" type="file" multiple accept="image/*">
-        <button class="primary" onclick="dodajPorudzbinu()">DODAJ PORUDŽBINU</button>
+        <input id="slike" type="file" multiple>
+        <button class="primary" onclick="dodajPorudzbinu()">DODAJ</button>
+
+        <div class="sort-box">
+            <p>Sortiranje:</p>
+            <button class="btn-sort" onclick="promeniSort('id')">Vreme unosa (Novo prvo)</button>
+            <button class="btn-sort" onclick="promeniSort('rok')">Po roku (Najbliži rok)</button>
+        </div>
     </div>
 
     <div id="lista"></div>
 
     <div class="modal" id="editModal">
         <div class="modal-box">
-            <h3 style="margin-top: 0;">Izmeni detalje</h3>
+            <h3 style="margin: 0;">Izmeni porudžbinu</h3>
+            
+            <label>Naziv proizvoda:</label>
             <input id="editProizvod">
+
+            <label>Napomena / Komentar:</label>
             <textarea id="editKomentar" style="height: 60px;"></textarea>
+
+            <label>Rok isporuke:</label>
             <input id="editRok">
+
+            <label>Cena (RSD):</label>
             <input id="editCena" type="number">
-            <button class="primary" onclick="sacuvajEdit()">SAČUVAJ</button>
-            <button style="background: #444;" onclick="document.getElementById('editModal').style.display='none'">NAZAD</button>
+
+            <button class="primary" onclick="sacuvajEdit()">SAČUVAJ IZMENE</button>
+            <button style="background: #444; margin-top: 10px;" onclick="document.getElementById('editModal').style.display='none'">ODUSTANI</button>
         </div>
     </div>
 
-    <div class="modal" id="imgModal" onclick="this.style.display='none'">
-        <img id="modalImg">
-    </div>
+    <div class="modal" id="imgModal" onclick="this.style.display='none'"><img id="modalImg"></div>
 
     <script>
-        flatpickr("#rok", { dateFormat: "d/m/Y" });
+        let trenutniSort = 'id';
+        const mainPicker = flatpickr("#rok", { dateFormat: "d/m/Y" });
         const editPicker = flatpickr("#editRok", { dateFormat: "d/m/Y" });
         let trenutniEditId = null;
+
+        function promeniSort(tip) {
+            trenutniSort = tip;
+            ucitajPorudzbine();
+        }
 
         async function ucitajPorudzbine() {
             try {
                 const res = await fetch("/porudzbine");
-                const data = await res.json();
+                let data = await res.json();
+
+                // Logika za sortiranje
+                if (trenutniSort === 'id') {
+                    data.sort((a, b) => b.id - a.id);
+                } else if (trenutniSort === 'rok') {
+                    data.sort((a, b) => {
+                        const dateA = a.rok ? new Date(a.rok.split('/').reverse().join('-')) : new Date(9999,0,1);
+                        const dateB = b.rok ? new Date(b.rok.split('/').reverse().join('-')) : new Date(9999,0,1);
+                        return dateA - dateB;
+                    });
+                }
+
                 const lista = document.getElementById("lista");
                 lista.innerHTML = "";
-
                 data.forEach(p => {
                     const div = document.createElement("div");
                     const statusClass = p.status === 'U izradi' ? 'status-radi' : p.status === 'Završeno' ? 'status-gotovo' : 'status-novo';
                     div.className = `order-card ${statusClass}`;
-
-                    const slikeHtml = (p.slike || "").split(",").filter(Boolean).slice(0, 4).map(url => 
-                        `<img src="${url}" onclick="event.stopPropagation(); prikaziSliku('${url}')">`
-                    ).join("");
+                    const slikeHtml = (p.slike || "").split(",").filter(Boolean).slice(0, 4).map(url => `<img src="${url}" onclick="event.stopPropagation(); prikaziSliku('${url}')">`).join("");
 
                     div.innerHTML = `
                         <div class="card-content">
                             <div class="card-header">${p.proizvod}</div>
-                            <div class="card-tags">${p.pismo} | ${p.stil}</div>
-                            <div class="card-date">📅 ${p.rok || 'Bez roka'}</div>
+                            <div style="font-size:9px; color:#555;">${p.pismo} | ${p.stil}</div>
+                            <div class="card-date">📅 ${p.rok || ''}</div>
                             <div class="card-images">${slikeHtml}</div>
-                            <div class="price">${p.cena || 0} RSD</div>
+                            <div style="font-weight:bold; font-size:13px; color:#1565c0;">${p.cena || 0} RSD</div>
                         </div>
                         <div class="status-bar">
-                            <select onchange="event.stopPropagation(); promeniStatus(${p.id}, this.value)">
+                            <select onchange="promeniStatus(${p.id}, this.value)">
                                 <option value="Novo" ${p.status==='Novo'?'selected':''}>Novo</option>
                                 <option value="U izradi" ${p.status==='U izradi'?'selected':''}>U izradi</option>
                                 <option value="Završeno" ${p.status==='Završeno'?'selected':''}>Završeno</option>
@@ -148,16 +158,7 @@
                     `;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.error("Greška."); }
-        }
-
-        async function promeniStatus(id, noviStatus) {
-            await fetch(`/porudzbine/${id}`, { 
-                method: "PUT", 
-                headers: {"Content-Type":"application/json"}, 
-                body: JSON.stringify({ status: noviStatus }) 
-            });
-            ucitajPorudzbine();
+            } catch (e) { console.log("Greška pri osvežavanju"); }
         }
 
         function otvoriEditModal(p) {
@@ -165,7 +166,7 @@
             document.getElementById("editProizvod").value = p.proizvod;
             document.getElementById("editKomentar").value = p.komentar || "";
             document.getElementById("editCena").value = p.cena || "";
-            editPicker.setDate(p.rok);
+            editPicker.setDate(p.rok, true); // Forsira postavljanje datuma
             document.getElementById("editModal").style.display = "flex";
         }
 
@@ -173,10 +174,14 @@
             const data = {
                 proizvod: document.getElementById("editProizvod").value,
                 komentar: document.getElementById("editKomentar").value,
-                rok: document.getElementById("editRok").value,
+                rok: document.getElementById("editRok").value, // Uzima vrednost iz popravljenog pickera
                 cena: document.getElementById("editCena").value
             };
-            await fetch(`/porudzbine/${trenutniEditId}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify(data) });
+            await fetch(`/porudzbine/${trenutniEditId}`, { 
+                method: "PUT", 
+                headers: {"Content-Type":"application/json"}, 
+                body: JSON.stringify(data) 
+            });
             document.getElementById("editModal").style.display = "none";
             ucitajPorudzbine();
         }
@@ -197,11 +202,13 @@
             ucitajPorudzbine();
         }
 
+        async function promeniStatus(id, status) {
+            await fetch(`/porudzbine/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({status}) });
+            ucitajPorudzbine();
+        }
+
         async function obrisi(id) {
-            if(confirm("Obriši porudžbinu?")) {
-                await fetch(`/porudzbine/${id}`, { method: "DELETE" });
-                ucitajPorudzbine();
-            }
+            if(confirm("Obriši?")) { await fetch(`/porudzbine/${id}`, { method: "DELETE" }); ucitajPorudzbine(); }
         }
 
         function prikaziSliku(url) {
