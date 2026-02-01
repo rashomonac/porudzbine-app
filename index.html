@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine v8</title>
+    <title>Sistem za Porudžbine v9</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -12,7 +12,6 @@
         input, textarea, select, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #333; margin-top: 10px; background: #252525; color: white; font-size: 14px; }
         button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; padding: 12px; }
 
-        /* RAZMAK IZMEĐU KARTICA 3mm */
         #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
 
         .order-card { 
@@ -29,17 +28,20 @@
             border: 1px solid rgba(0,0,0,0.1);
         }
 
-        /* DINAMIČKE BOJE PO ROKU */
-        .rok-siguran { background: #c8e6c9; } /* Zelena */
-        .rok-paznja { background: #fff9c4; }   /* Žuta */
-        .rok-hitno { background: #ffe0b2; }    /* Narandžasta */
-        .rok-isteklo { background: #ffcdd2; }  /* Crvena */
+        /* POZADINA KARTICE PREMA ROKU */
+        .rok-siguran { background: #c8e6c9; }
+        .rok-paznja { background: #fff9c4; }
+        .rok-hitno { background: #ffe0b2; }
+        .rok-isteklo { background: #ffcdd2; }
 
-        /* TAMNIJE TRAKE ZA STATUS */
-        .rok-siguran .status-bar { background: #81c784; color: #1b5e20; }
-        .rok-paznja .status-bar { background: #fff176; color: #f57f17; }
-        .rok-hitno .status-bar { background: #ffb74d; color: #e65100; }
-        .rok-isteklo .status-bar { background: #e57373; color: #b71c1c; }
+        /* BOJE ZA STATUS BAR (NA DNU) */
+        .status-bar { padding: 8px; text-align: center; font-size: 11px; font-weight: bold; }
+        
+        .bar-novo { background: #9e9e9e !important; color: white !important; }      /* Sivo */
+        .bar-radi { background: #2196f3 !important; color: white !important; }      /* Plavo */
+        .bar-gotovo { background: #4caf50 !important; color: white !important; }    /* Zeleno */
+
+        .status-bar select { background: transparent; border: none; color: inherit; font-weight: bold; padding: 0; width: auto; font-size: 12px; cursor: pointer; }
 
         .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
         .card-header { font-weight: bold; font-size: 14px; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -50,9 +52,7 @@
 
         .card-bottom { margin-top: auto; }
         .price-tag { font-weight: bold; font-size: 15px; color: #000; text-align: center; padding-bottom: 5px; }
-        .status-bar { padding: 8px; text-align: center; font-size: 11px; font-weight: bold; }
-        .status-bar select { background: transparent; border: none; color: inherit; font-weight: bold; padding: 0; width: auto; font-size: 12px; cursor: pointer; }
-        .actions { display: flex; justify-content: space-around; padding: 6px 0; border-top: 1px solid rgba(0,0,0,0.1); }
+        .actions { display: flex; justify-content: space-around; padding: 6px 0; border-top: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.05); }
         .actions span { cursor: pointer; font-size: 18px; }
 
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
@@ -103,19 +103,14 @@
 
         function izracunajBojaKlasu(datumRoka) {
             if (!datumRoka || datumRoka === "Bez roka") return "rok-siguran";
-            
             const [dan, mesec, godina] = datumRoka.split('/').map(Number);
             const rokDate = new Date(godina, mesec - 1, dan);
-            const danas = new Date();
-            danas.setHours(0,0,0,0);
-            
-            const diffTime = rokDate - danas;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+            const danas = new Date(); danas.setHours(0,0,0,0);
+            const diffDays = Math.ceil((rokDate - danas) / (1000 * 60 * 60 * 24));
             if (diffDays > 3) return "rok-siguran";
             if (diffDays === 2) return "rok-paznja";
             if (diffDays === 1) return "rok-hitno";
-            return "rok-isteklo"; // 0 ili manje dana
+            return "rok-isteklo";
         }
 
         async function ucitajPorudzbine() {
@@ -128,6 +123,9 @@
                 lista.innerHTML = "";
                 data.forEach(p => {
                     const bojaKlasa = izracunajBojaKlasu(p.rok);
+                    // Boja status bara
+                    const statusBarKlasa = p.status === 'U izradi' ? 'bar-radi' : p.status === 'Završeno' ? 'bar-gotovo' : 'bar-novo';
+                    
                     const div = document.createElement("div");
                     div.className = `order-card ${bojaKlasa}`;
                     const slikeHtml = (p.slike || "").split(",").filter(Boolean).slice(0, 4).map(url => `<img src="${url}" onclick="event.stopPropagation(); prikaziSliku('${url}')">`).join("");
@@ -141,7 +139,7 @@
                         </div>
                         <div class="card-bottom">
                             <div class="price-tag">${p.cena || 0} RSD</div>
-                            <div class="status-bar">
+                            <div class="status-bar ${statusBarKlasa}">
                                 <select onchange="promeniStatus(${p.id}, this.value)">
                                     <option value="Novo" ${p.status==='Novo'?'selected':''}>Novo</option>
                                     <option value="U izradi" ${p.status==='U izradi'?'selected':''}>U izradi</option>
@@ -157,6 +155,11 @@
                     lista.appendChild(div);
                 });
             } catch (e) { console.log("Refresh error"); }
+        }
+
+        async function promeniStatus(id, status) {
+            await fetch(`/porudzbine/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({status}) });
+            ucitajPorudzbine();
         }
 
         function otvoriEditModal(p) {
@@ -195,11 +198,6 @@
             document.getElementById("komentar").value = "";
             document.getElementById("slike").value = "";
             mainPicker.clear();
-            ucitajPorudzbine();
-        }
-
-        async function promeniStatus(id, status) {
-            await fetch(`/porudzbine/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({status}) });
             ucitajPorudzbine();
         }
 
