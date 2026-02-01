@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v24 - Biranje Sortiranja</title>
+    <title>Sistem v25 - Sortiranje u Formi</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -16,12 +16,12 @@
         .stats-table th { background: #1976d2; color: white; padding: 5px; text-align: left; }
         .stats-table td { padding: 5px; border-bottom: 1px solid #333; color: #ddd; }
 
-        /* Kontrole za sortiranje iznad liste */
-        .controls { margin-left: 300px; padding: 10px 15px 0 15px; display: flex; align-items: center; gap: 10px; }
-        .controls label { font-size: 12px; color: #1976d2; font-weight: bold; text-transform: uppercase; }
-        #sortiranje { width: auto; margin: 0; padding: 5px; background: #1a1a1a; border-color: #444; }
+        /* Stil za selektor sortiranja unutar forme */
+        .sort-container { margin-top: 15px; padding-top: 10px; border-top: 1px solid #333; }
+        .sort-label { font-size: 11px; color: #1976d2; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 2px; }
+        #sortiranje { border: 1px solid #1976d2; background: #1a1a1a; cursor: pointer; }
 
-        #lista { margin-left: 300px; padding: 10px 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
+        #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
         .order-card { width: 4cm; height: 7.5cm; color: #222; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
         
         .rok-siguran { background: #c8e6c9; } .rok-paznja { background: #fff9c4; } .rok-hitno { background: #ffe0b2; } .rok-isteklo { background: #ffcdd2; }
@@ -51,7 +51,7 @@
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0; font-size: 17px;">Sistem v24</h2>
+        <h2 style="color: #1976d2; margin: 0; font-size: 17px;">Sistem v25</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 35px;"></textarea>
         <div style="display: flex; gap: 4px;">
@@ -67,14 +67,14 @@
             <thead><tr><th>Mesec</th><th>Zarada (RSD)</th></tr></thead>
             <tbody id="statsBody"></tbody>
         </table>
-    </div>
 
-    <div class="controls">
-        <label>Sortiraj:</label>
-        <select id="sortiranje" onchange="ucitajPorudzbine()">
-            <option value="rok">Po isteku roka (Prioritet)</option>
-            <option value="vreme">Po vremenu unosa (Novije prvo)</option>
-        </select>
+        <div class="sort-container">
+            <span class="sort-label">Prikaz liste:</span>
+            <select id="sortiranje" onchange="ucitajPorudzbine()">
+                <option value="rok">Prioritet (Po roku)</option>
+                <option value="vreme">Hronološki (Novo prvo)</option>
+            </select>
+        </div>
     </div>
 
     <div id="lista"></div>
@@ -130,7 +130,7 @@
                     statsBody.innerHTML += `<tr><td>${imenaM[mIdx]} ${gIdx}</td><td>${suma.toLocaleString()}</td></tr>`;
                 }
 
-                // LOGIKA SORTIRANJA
+                // SORTIRANJE
                 data.sort((a, b) => {
                     if (sortTip === "rok") {
                         const rokA = datumUBroj(a.rok);
@@ -138,7 +138,7 @@
                         if (rokA !== rokB) return rokA - rokB;
                         return b.id - a.id; 
                     } else {
-                        return b.id - a.id; // Po vremenu unosa (ID je auto-increment)
+                        return b.id - a.id;
                     }
                 });
 
@@ -175,7 +175,7 @@
                         </div>`;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.error("Greška pri učitavanju"); }
+            } catch (e) { console.error("Greška"); }
         }
 
         function otvoriEdit(p) {
