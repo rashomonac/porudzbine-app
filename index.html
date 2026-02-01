@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine v17</title>
+    <title>Sistem za Porudžbine v18</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -12,61 +12,65 @@
         input, textarea, select, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #333; margin-top: 10px; background: #252525; color: white; font-size: 14px; }
         button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; padding: 12px; }
         
-        /* Tabela zarade */
         .stats-table { width: 100%; margin-top: 25px; border-collapse: collapse; font-size: 12px; background: #222; border-radius: 8px; overflow: hidden; }
         .stats-table th { background: #1976d2; color: white; padding: 8px; text-align: left; }
         .stats-table td { padding: 8px; border-bottom: 1px solid #333; color: #ddd; }
-        .stats-table tr:nth-child(1) td { font-weight: bold; color: #4caf50; background: #2a2a2a; }
+        .stats-table tr:first-child td { font-weight: bold; color: #4caf50; background: #2a2a2a; }
 
-        /* Mreža i Kartice */
         #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
         .order-card { width: 4cm; height: 7.5cm; color: #222; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
         
         .rok-siguran { background: #c8e6c9; } .rok-paznja { background: #fff9c4; } .rok-hitno { background: #ffe0b2; } .rok-isteklo { background: #ffcdd2; }
 
         .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* POPRAVLJENI ELEMENTI NA KARTICI */
-        .card-header { font-weight: 900; font-size: 14px; color: #000; display: block; margin-bottom: 2px; text-transform: uppercase; }
-        .card-comment { font-size: 11px; color: #333; font-weight: 500; margin-bottom: 5px; line-height: 1.2; display: block; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 3px; }
-        
+        .card-header { font-weight: 900; font-size: 13px; color: #000; display: block; text-transform: uppercase; margin-bottom: 2px; }
+        .card-comment { font-size: 11px; color: #333; font-weight: 600; margin-bottom: 5px; line-height: 1.2; display: block; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 3px; }
         .card-tags { font-size: 11px; color: #000; font-weight: bold; }
-        .card-date { font-size: 12px; font-weight: bold; color: #000; margin-top: 5px; }
-        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 8px 0; height: 80px; flex-shrink: 0; }
+        .card-date { font-size: 12px; font-weight: bold; color: #000; margin-top: 3px; }
+        
+        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 6px 0; height: 80px; flex-shrink: 0; }
         .card-images img { width: 100%; height: 38px; object-fit: cover; border-radius: 4px; cursor: pointer; }
 
         .card-bottom { margin-top: auto; flex-shrink: 0; }
-        .price-tag { font-weight: bold; font-size: 15px; color: #000; text-align: center; padding: 5px 0; }
-        .status-bar { padding: 8px; text-align: center; font-size: 11px; font-weight: bold; }
-        .bar-novo { background: #9e9e9e !important; color: white !important; }
-        .bar-radi { background: #2196f3 !important; color: white !important; }
-        .bar-gotovo { background: #4caf50 !important; color: white !important; }
+        .price-tag { font-weight: bold; font-size: 15px; color: #000; text-align: center; padding: 3px 0; }
 
-        .status-bar select { background: transparent; border: none; color: inherit; font-weight: bold; font-size: 12px; width: 100%; }
-        .actions { display: flex; justify-content: space-around; padding: 8px 0; border-top: 1px solid rgba(0,0,0,0.1); }
+        /* FIX ZA VIDLJIVOST STATUSA */
+        .status-bar { padding: 6px; text-align: center; font-size: 11px; font-weight: bold; }
+        .bar-novo { background: #757575 !important; }
+        .bar-radi { background: #1976d2 !important; }
+        .bar-gotovo { background: #388e3c !important; }
+
+        .status-bar select { 
+            background: transparent; border: none; color: white !important; 
+            font-weight: 900; font-size: 12px; width: 100%; cursor: pointer;
+            text-align: center; -webkit-appearance: none; 
+        }
+        .status-bar select option { background: white !important; color: black !important; font-weight: normal; }
+
+        .actions { display: flex; justify-content: space-around; padding: 6px 0; border-top: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.2); }
         .actions span { cursor: pointer; font-size: 18px; }
 
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        #modalImg { height: 8cm; width: auto; border-radius: 8px; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        #modalImg { height: 8cm; width: auto; border-radius: 8px; border: 2px solid white; }
     </style>
 </head>
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0;">Nova Porudžbina</h2>
+        <h2 style="color: #1976d2; margin: 0 0 10px 0;">Sistem v18</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
-        <textarea id="komentar" placeholder="NAPOMENA / KOMENTAR" style="height: 50px;"></textarea>
+        <textarea id="komentar" placeholder="NAPOMENA" style="height: 40px;"></textarea>
         <div style="display: flex; gap: 5px;">
             <select id="pismo"><option>Ćirilica</option><option>Latinica</option></select>
             <select id="stil"><option>Pisano</option><option>Štampano</option></select>
         </div>
-        <input id="rok" placeholder="Izaberi rok">
+        <input id="rok" placeholder="Rok isporuke">
         <input id="cena" type="number" placeholder="Cena (RSD)">
         <input id="slike" type="file" multiple>
-        <button class="primary" onclick="dodajPorudzbinu()">DODAJ NA LISTU</button>
+        <button class="primary" onclick="dodajPorudzbinu()">DODAJ PORUDŽBINU</button>
 
         <table class="stats-table">
-            <thead><tr><th>Mesec</th><th>Zarada</th></tr></thead>
+            <thead><tr><th>Mesec</th><th>Zarada (RSD)</th></tr></thead>
             <tbody id="statsBody"></tbody>
         </table>
     </div>
@@ -76,7 +80,6 @@
     <div class="modal" id="imgModal" onclick="this.style.display='none'"><img id="modalImg" src=""></div>
 
     <script>
-        let trenutniSort = 'id';
         const mainPicker = flatpickr("#rok", { dateFormat: "d/m/Y" });
 
         async function ucitajPorudzbine() {
@@ -84,24 +87,23 @@
                 const res = await fetch("/porudzbine");
                 const data = await res.json();
                 
-                // Osveži tabelu zarade
+                // Statistika zarade
                 const statsBody = document.getElementById("statsBody");
                 statsBody.innerHTML = "";
-                const meseci = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Avg", "Sep", "Okt", "Nov", "Dec"];
-                const d = new Date();
+                const imenaM = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Avg", "Sep", "Okt", "Nov", "Dec"];
+                const dan = new Date();
                 for(let i=0; i<6; i++) {
-                    let provera = new Date(d.getFullYear(), d.getMonth()-i, 1);
-                    let mIdx = provera.getMonth();
-                    let gIdx = provera.getFullYear();
+                    let d = new Date(dan.getFullYear(), dan.getMonth()-i, 1);
+                    let mIdx = d.getMonth(); let gIdx = d.getFullYear();
                     let suma = data.reduce((acc, p) => {
                         if(!p.rok) return acc;
                         const [dR, mR, gR] = p.rok.split('/').map(Number);
                         return (mR === mIdx+1 && gR === gIdx) ? acc + (Number(p.cena)||0) : acc;
                     }, 0);
-                    statsBody.innerHTML += `<tr><td>${meseci[mIdx]} ${gIdx}</td><td>${suma.toLocaleString()}</td></tr>`;
+                    statsBody.innerHTML += `<tr><td>${imenaM[mIdx]} ${gIdx}</td><td>${suma.toLocaleString()}</td></tr>`;
                 }
 
-                // Prikaz kartica
+                // Lista kartica
                 const lista = document.getElementById("lista");
                 lista.innerHTML = "";
                 data.sort((a,b) => b.id - a.id).forEach(p => {
@@ -128,13 +130,13 @@
                                     </select>
                                 </div>
                                 <div class="actions">
-                                    <span onclick='alert("ID: ${p.id} - Koristite telefon za brzu izmenu")'>✏️</span>
+                                    <span onclick='alert("ID: ${p.id} - Koristite formu za izmenu")'>✏️</span>
                                     <span onclick="obrisi(${p.id})">🗑️</span>
                                 </div>
                             </div>
                         </div>`;
                 });
-            } catch (e) { console.error("Greška pri osvežavanju"); }
+            } catch (e) { console.error("Refresh error"); }
         }
 
         async function dodajPorudzbinu() {
@@ -146,9 +148,8 @@
             fd.append("rok", document.getElementById("rok").value);
             fd.append("cena", document.getElementById("cena").value);
             [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
-            
             await fetch("/porudzbine", { method: "POST", body: fd });
-            location.reload(); // Najsigurniji način da se sve osveži
+            location.reload(); 
         }
 
         function izracunajBojaKlasu(d) {
@@ -160,7 +161,7 @@
 
         function prikaziSliku(url) { document.getElementById("modalImg").src = url; document.getElementById("imgModal").style.display = "flex"; }
         async function promeniStatus(id, status) { await fetch(`/porudzbine/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({status}) }); ucitajPorudzbine(); }
-        async function obrisi(id) { if(confirm("Obriši?")) { await fetch(`/porudzbine/${id}`, { method: "DELETE" }); ucitajPorudzbine(); } }
+        async function obrisi(id) { if(confirm("Obriši stavku?")) { await fetch(`/porudzbine/${id}`, { method: "DELETE" }); ucitajPorudzbine(); } }
 
         ucitajPorudzbine();
     </script>
