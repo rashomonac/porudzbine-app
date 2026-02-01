@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25 - Sortiranje u Formi</title>
+    <title>Sistem v25.1 - Visible Status Fix</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -16,7 +16,6 @@
         .stats-table th { background: #1976d2; color: white; padding: 5px; text-align: left; }
         .stats-table td { padding: 5px; border-bottom: 1px solid #333; color: #ddd; }
 
-        /* Stil za selektor sortiranja unutar forme */
         .sort-container { margin-top: 15px; padding-top: 10px; border-top: 1px solid #333; }
         .sort-label { font-size: 11px; color: #1976d2; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 2px; }
         #sortiranje { border: 1px solid #1976d2; background: #1a1a1a; cursor: pointer; }
@@ -34,9 +33,22 @@
 
         .card-bottom { margin-top: auto; }
         .price-tag { font-weight: 900; font-size: 14px; color: #000; text-align: center; padding: 2px 0; }
+        
+        /* FIX ZA STATUS BAR I VIDLJIVE LABELE */
         .status-bar { padding: 2px; text-align: center; height: 20px; display: flex; align-items: center; }
         .bar-novo { background: #757575 !important; } .bar-radi { background: #1976d2 !important; } .bar-gotovo { background: #388e3c !important; }
-        .status-bar select { background: transparent; border: none; color: white !important; font-weight: 900; font-size: 11px; width: 100%; cursor: pointer; text-align: center; }
+        
+        .status-bar select { 
+            background: transparent; border: none; color: white !important; 
+            font-weight: 900; font-size: 11px; width: 100%; cursor: pointer; 
+            text-align: center; -webkit-appearance: none; appearance: none;
+        }
+        /* OSIGURAVANJE DA SU OPCIJE VIDLJIVE */
+        .status-bar select option { 
+            background-color: #ffffff !important; 
+            color: #000000 !important; 
+            font-weight: bold;
+        }
 
         .actions { display: flex; justify-content: space-around; padding: 4px 0; background: rgba(255,255,255,0.2); }
         .actions span { cursor: pointer; font-size: 16px; }
@@ -51,7 +63,7 @@
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0; font-size: 17px;">Sistem v25</h2>
+        <h2 style="color: #1976d2; margin: 0; font-size: 17px;">Sistem v25.1</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 35px;"></textarea>
         <div style="display: flex; gap: 4px;">
@@ -114,7 +126,6 @@
                 const data = await res.json();
                 const sortTip = document.getElementById("sortiranje").value;
                 
-                // Statistika
                 const statsBody = document.getElementById("statsBody");
                 statsBody.innerHTML = "";
                 const imenaM = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Avg", "Sep", "Okt", "Nov", "Dec"];
@@ -130,7 +141,6 @@
                     statsBody.innerHTML += `<tr><td>${imenaM[mIdx]} ${gIdx}</td><td>${suma.toLocaleString()}</td></tr>`;
                 }
 
-                // SORTIRANJE
                 data.sort((a, b) => {
                     if (sortTip === "rok") {
                         const rokA = datumUBroj(a.rok);
