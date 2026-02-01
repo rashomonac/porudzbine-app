@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine v18</title>
+    <title>Sistem za Porudžbine v19</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -34,7 +34,6 @@
         .card-bottom { margin-top: auto; flex-shrink: 0; }
         .price-tag { font-weight: bold; font-size: 15px; color: #000; text-align: center; padding: 3px 0; }
 
-        /* FIX ZA VIDLJIVOST STATUSA */
         .status-bar { padding: 6px; text-align: center; font-size: 11px; font-weight: bold; }
         .bar-novo { background: #757575 !important; }
         .bar-radi { background: #1976d2 !important; }
@@ -57,7 +56,7 @@
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0 0 10px 0;">Sistem v18</h2>
+        <h2 style="color: #1976d2; margin: 0 0 10px 0;">Sistem v19</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 40px;"></textarea>
         <div style="display: flex; gap: 5px;">
@@ -87,7 +86,6 @@
                 const res = await fetch("/porudzbine");
                 const data = await res.json();
                 
-                // Statistika zarade
                 const statsBody = document.getElementById("statsBody");
                 statsBody.innerHTML = "";
                 const imenaM = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Avg", "Sep", "Okt", "Nov", "Dec"];
@@ -103,7 +101,6 @@
                     statsBody.innerHTML += `<tr><td>${imenaM[mIdx]} ${gIdx}</td><td>${suma.toLocaleString()}</td></tr>`;
                 }
 
-                // Lista kartica
                 const lista = document.getElementById("lista");
                 lista.innerHTML = "";
                 data.sort((a,b) => b.id - a.id).forEach(p => {
@@ -130,7 +127,7 @@
                                     </select>
                                 </div>
                                 <div class="actions">
-                                    <span onclick='alert("ID: ${p.id} - Koristite formu za izmenu")'>✏️</span>
+                                    <span onclick='alert("ID: ${p.id}")'>✏️</span>
                                     <span onclick="obrisi(${p.id})">🗑️</span>
                                 </div>
                             </div>
@@ -163,6 +160,8 @@
         async function promeniStatus(id, status) { await fetch(`/porudzbine/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({status}) }); ucitajPorudzbine(); }
         async function obrisi(id) { if(confirm("Obriši stavku?")) { await fetch(`/porudzbine/${id}`, { method: "DELETE" }); ucitajPorudzbine(); } }
 
+        // AUTOMATSKO OSVEŽAVANJE SVAKIH 5 SEKUNDI
+        setInterval(ucitajPorudzbine, 5000);
         ucitajPorudzbine();
     </script>
 </body>
