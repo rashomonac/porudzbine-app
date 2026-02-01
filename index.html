@@ -3,67 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine v7</title>
+    <title>Sistem za Porudžbine v8</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         body { margin: 0; background: #0f0f0f; font-family: 'Segoe UI', Arial, sans-serif; color: white; }
-        
-        /* SIDEBAR FORMA */
         .card-form { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: #1a1a1a; padding: 20px; box-sizing: border-box; border-right: 1px solid #333; z-index: 100; overflow-y: auto; }
         input, textarea, select, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #333; margin-top: 10px; background: #252525; color: white; font-size: 14px; }
         button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; padding: 12px; }
 
-        /* LISTA KARTICA */
-        #lista { margin-left: 300px; padding: 30px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 25px; }
+        /* RAZMAK IZMEĐU KARTICA 3mm */
+        #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
 
-        /* KARTICA 4x6 cm */
         .order-card { 
             width: 4cm; 
-            height: 6.8cm; /* Malo povećana visina zbog poravnanja */
+            height: 6.8cm; 
             color: #222; 
-            border-radius: 12px; 
+            border-radius: 8px; 
             display: flex; 
             flex-direction: column; 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.6); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
             box-sizing: border-box; 
             transition: 0.2s; 
             overflow: hidden; 
+            border: 1px solid rgba(0,0,0,0.1);
         }
 
-        /* GORNJI DEO KARTICE */
+        /* DINAMIČKE BOJE PO ROKU */
+        .rok-siguran { background: #c8e6c9; } /* Zelena */
+        .rok-paznja { background: #fff9c4; }   /* Žuta */
+        .rok-hitno { background: #ffe0b2; }    /* Narandžasta */
+        .rok-isteklo { background: #ffcdd2; }  /* Crvena */
+
+        /* TAMNIJE TRAKE ZA STATUS */
+        .rok-siguran .status-bar { background: #81c784; color: #1b5e20; }
+        .rok-paznja .status-bar { background: #fff176; color: #f57f17; }
+        .rok-hitno .status-bar { background: #ffb74d; color: #e65100; }
+        .rok-isteklo .status-bar { background: #e57373; color: #b71c1c; }
+
         .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
         .card-header { font-weight: bold; font-size: 14px; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
-        /* VEĆI TEKST ZA PISMO I STIL */
-        .card-tags { font-size: 12px; color: #000; font-weight: bold; margin-top: 4px; background: rgba(0,0,0,0.05); padding: 2px 4px; border-radius: 4px; display: inline-block; }
-        
-        .card-date { font-size: 12px; font-weight: bold; color: #444; margin-top: 5px; }
-        
-        /* FIKSNA VISINA ZA SLIKE */
-        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 8px 0; height: 75px; align-content: start; }
+        .card-tags { font-size: 12px; color: #000; font-weight: bold; margin-top: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .card-date { font-size: 12px; font-weight: bold; color: #000; margin-top: 5px; }
+        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 8px 0; height: 75px; }
         .card-images img { width: 100%; height: 35px; object-fit: cover; border-radius: 4px; }
 
-        /* DONJI FIXNI DEO KARTICE */
         .card-bottom { margin-top: auto; }
-        .price-tag { font-weight: bold; font-size: 15px; color: #1565c0; text-align: center; padding-bottom: 5px; }
-
-        /* STATUSNE BOJE I BAR */
-        .status-novo { background: #ffffff; border: 2px solid #ccc; }
-        .status-novo .status-bar { background: #e0e0e0; color: #333; } 
-        .status-radi { background: #d8ebff; border: 2px solid #2196f3; }
-        .status-radi .status-bar { background: #90caf9; color: #0d47a1; }
-        .status-gotovo { background: #dff3df; border: 2px solid #4caf50; }
-        .status-gotovo .status-bar { background: #a5d6a7; color: #1b5e20; }
-
+        .price-tag { font-weight: bold; font-size: 15px; color: #000; text-align: center; padding-bottom: 5px; }
         .status-bar { padding: 8px; text-align: center; font-size: 11px; font-weight: bold; }
-        .status-bar select { background: transparent; border: none; color: inherit; font-weight: bold; padding: 0; width: auto; margin: 0; font-size: 12px; cursor: pointer; }
-
-        /* IKONICE U ISTOJ RAVNI */
-        .actions { display: flex; justify-content: space-around; padding: 8px 0; border-top: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.02); }
+        .status-bar select { background: transparent; border: none; color: inherit; font-weight: bold; padding: 0; width: auto; font-size: 12px; cursor: pointer; }
+        .actions { display: flex; justify-content: space-around; padding: 6px 0; border-top: 1px solid rgba(0,0,0,0.1); }
         .actions span { cursor: pointer; font-size: 18px; }
 
-        /* MODALI */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
         .modal-box { background: #1e1e1e; padding: 20px; border-radius: 15px; width: 320px; color: white; }
         .modal-box label { display: block; font-size: 12px; color: #1976d2; margin-top: 12px; font-weight: bold; }
@@ -110,6 +101,23 @@
         const editPicker = flatpickr("#editRok", { dateFormat: "d/m/Y", allowInput: true });
         let trenutniEditId = null;
 
+        function izracunajBojaKlasu(datumRoka) {
+            if (!datumRoka || datumRoka === "Bez roka") return "rok-siguran";
+            
+            const [dan, mesec, godina] = datumRoka.split('/').map(Number);
+            const rokDate = new Date(godina, mesec - 1, dan);
+            const danas = new Date();
+            danas.setHours(0,0,0,0);
+            
+            const diffTime = rokDate - danas;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 3) return "rok-siguran";
+            if (diffDays === 2) return "rok-paznja";
+            if (diffDays === 1) return "rok-hitno";
+            return "rok-isteklo"; // 0 ili manje dana
+        }
+
         async function ucitajPorudzbine() {
             try {
                 const res = await fetch("/porudzbine");
@@ -119,9 +127,9 @@
                 const lista = document.getElementById("lista");
                 lista.innerHTML = "";
                 data.forEach(p => {
+                    const bojaKlasa = izracunajBojaKlasu(p.rok);
                     const div = document.createElement("div");
-                    const statusClass = p.status === 'U izradi' ? 'status-radi' : p.status === 'Završeno' ? 'status-gotovo' : 'status-novo';
-                    div.className = `order-card ${statusClass}`;
+                    div.className = `order-card ${bojaKlasa}`;
                     const slikeHtml = (p.slike || "").split(",").filter(Boolean).slice(0, 4).map(url => `<img src="${url}" onclick="event.stopPropagation(); prikaziSliku('${url}')">`).join("");
                     
                     div.innerHTML = `
