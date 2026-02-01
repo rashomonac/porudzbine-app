@@ -3,48 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine v14</title>
+    <title>Sistem za Porudžbine v15 - Final</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
+        /* OSNOVNI STIL I LEVA FORMA */
         body { margin: 0; background: #0f0f0f; font-family: 'Segoe UI', Arial, sans-serif; color: white; }
         .card-form { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: #1a1a1a; padding: 20px; box-sizing: border-box; border-right: 1px solid #333; z-index: 100; overflow-y: auto; }
         input, textarea, select, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #333; margin-top: 10px; background: #252525; color: white; font-size: 14px; }
         button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; padding: 12px; }
-        
         .hint { font-size: 11px; color: #888; margin-top: 4px; display: block; }
-        .sort-box { margin-top: 25px; padding-top: 15px; border-top: 1px solid #333; }
-        .btn-sort { background: #333; font-size: 12px; padding: 8px; margin-top: 8px; cursor: pointer; border: 1px solid #444; text-align: center; }
 
+        /* TABELA ARHIVE I ZARADE */
+        .stats-table { width: 100%; margin-top: 25px; border-collapse: collapse; font-size: 12px; background: #222; border-radius: 8px; overflow: hidden; }
+        .stats-table th { background: #1976d2; color: white; padding: 8px; text-align: left; }
+        .stats-table td { padding: 8px; border-bottom: 1px solid #333; color: #ddd; }
+        .stats-table tr:nth-child(1) td { font-weight: bold; color: #4caf50; background: #2a2a2a; } /* Tekući mesec */
+
+        /* SORTIRANJE */
+        .sort-box { margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; }
+        .btn-sort { background: #333; font-size: 12px; padding: 8px; margin-top: 8px; cursor: pointer; border: 1px solid #444; text-align: center; color: white; width: 100%; border-radius: 6px; }
+
+        /* MREŽA KARTICA */
         #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
 
-        /* KARTICA JE SADA MALO VIŠA DA SVE STANE */
+        /* KARTICA - FIKSNA VISINA 7.5cm */
         .order-card { 
-            width: 4cm; 
-            height: 7.5cm; 
-            color: #222; border-radius: 8px; 
+            width: 4cm; height: 7.5cm; color: #222; border-radius: 8px; 
             display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
             box-sizing: border-box; transition: 0.2s; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);
         }
 
-        .rok-siguran { background: #c8e6c9; }
-        .rok-paznja { background: #fff9c4; }
-        .rok-hitno { background: #ffe0b2; }
-        .rok-isteklo { background: #ffcdd2; }
+        /* BOJE ROKA (SEMAFOR) */
+        .rok-siguran { background: #c8e6c9; } /* 3+ dana */
+        .rok-paznja { background: #fff9c4; }   /* 2 dana */
+        .rok-hitno { background: #ffe0b2; }    /* 1 dan */
+        .rok-isteklo { background: #ffcdd2; }  /* 0 i manje */
 
+        /* UNUTRAŠNJOST KARTICE */
         .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
         .card-header { font-weight: bold; font-size: 14px; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .card-tags { font-size: 12px; color: #000; font-weight: bold; margin-top: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); }
         .card-date { font-size: 12px; font-weight: bold; color: #000; margin-top: 5px; }
         
-        /* OGRANIČEN PROSTOR ZA SLIKE */
         .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 8px 0; height: 80px; flex-shrink: 0; }
         .card-images img { width: 100%; height: 38px; object-fit: cover; border-radius: 4px; cursor: pointer; }
 
-        /* FIKSIRAN DONJI DEO */
-        .card-bottom { margin-top: auto; flex-shrink: 0; background: rgba(0,0,0,0.02); }
+        .card-bottom { margin-top: auto; flex-shrink: 0; }
         .price-tag { font-weight: bold; font-size: 15px; color: #000; text-align: center; padding: 5px 0; }
-        
+
+        /* STATUS BAR BOJE */
         .status-bar { padding: 8px; text-align: center; font-size: 11px; font-weight: bold; }
         .bar-novo { background: #9e9e9e !important; color: white !important; }
         .bar-radi { background: #2196f3 !important; color: white !important; }
@@ -53,12 +61,12 @@
         .status-bar select { background: transparent; border: none; color: inherit; font-weight: bold; font-size: 12px; cursor: pointer; outline: none; }
         .status-bar select option { background: white; color: black; }
 
-        .actions { display: flex; justify-content: space-around; padding: 8px 0; border-top: 1px solid rgba(0,0,0,0.1); }
-        .actions span { cursor: pointer; font-size: 18px; line-height: 1; }
+        .actions { display: flex; justify-content: space-around; padding: 8px 0; border-top: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.05); }
+        .actions span { cursor: pointer; font-size: 18px; }
 
         /* MODALI */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        #modalImg { height: 8cm; width: auto; border-radius: 8px; }
+        #modalImg { height: 8cm; width: auto; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .modal-edit { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
         .modal-box { background: #1e1e1e; padding: 20px; border-radius: 15px; width: 320px; color: white; }
     </style>
@@ -66,9 +74,9 @@
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0 0 15px 0;">Nova Porudžbina</h2>
+        <h2 style="color: #1976d2; margin: 0 0 10px 0; font-size: 18px;">Nova Porudžbina</h2>
         <input id="proizvod" placeholder="Naziv proizvoda">
-        <textarea id="komentar" placeholder="Napomena..." style="height: 50px;"></textarea>
+        <textarea id="komentar" placeholder="Napomena..." style="height: 40px;"></textarea>
         <div style="display: flex; gap: 5px;">
             <select id="pismo"><option>Ćirilica</option><option>Latinica</option></select>
             <select id="stil"><option>Pisano</option><option>Štampano</option></select>
@@ -78,6 +86,11 @@
         <input id="slike" type="file" multiple>
         <span class="hint">Maksimalno 4 slike</span>
         <button class="primary" onclick="dodajPorudzbinu()">DODAJ</button>
+
+        <table class="stats-table">
+            <thead><tr><th>Mesec</th><th>Zarada (RSD)</th></tr></thead>
+            <tbody id="statsBody"></tbody>
+        </table>
 
         <div class="sort-box">
             <button class="btn-sort" onclick="promeniSort('id')">🕒 Po vremenu unosa</button>
@@ -90,22 +103,20 @@
     <div class="modal-edit" id="editModal">
         <div class="modal-box">
             <h3 style="margin: 0;">Izmeni porudžbinu</h3>
-            <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Naziv proizvoda:</label>
+            <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Proizvod:</label>
             <input id="editProizvod">
             <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Napomena:</label>
             <textarea id="editKomentar" style="height: 60px;"></textarea>
-            <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Rok isporuke:</label>
+            <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Rok:</label>
             <input id="editRok">
-            <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Cena (RSD):</label>
+            <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Cena:</label>
             <input id="editCena" type="number">
-            <button class="primary" onclick="sacuvajEdit()">SAČUVAJ IZMENE</button>
+            <button class="primary" onclick="sacuvajEdit()">SAČUVAJ</button>
             <button style="background: #444; margin-top: 10px;" onclick="document.getElementById('editModal').style.display='none'">ODUSTANI</button>
         </div>
     </div>
 
-    <div class="modal" id="imgModal" onclick="this.style.display='none'">
-        <img id="modalImg" src="">
-    </div>
+    <div class="modal" id="imgModal" onclick="this.style.display='none'"><img id="modalImg" src=""></div>
 
     <script>
         let trenutniSort = 'id';
@@ -113,41 +124,59 @@
         const editPicker = flatpickr("#editRok", { dateFormat: "d/m/Y", allowInput: true });
         let trenutniEditId = null;
 
-        function promeniSort(tip) { trenutniSort = tip; ucitajPorudzbine(); }
+        // FUNKCIJA ZA OBRAČUN ZARADE PO MESECIMA
+        function osveziStatistiku(podaci) {
+            const statsBody = document.getElementById("statsBody");
+            statsBody.innerHTML = "";
+            const meseciImena = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Avg", "Sep", "Okt", "Nov", "Dec"];
+            const danas = new Date();
 
-        function izracunajBojaKlasu(datumRoka) {
-            if (!datumRoka || datumRoka === "Bez roka") return "rok-siguran";
-            const [dan, mesec, godina] = datumRoka.split('/').map(Number);
-            const rokDate = new Date(godina, mesec - 1, dan);
-            const danas = new Date(); danas.setHours(0,0,0,0);
-            const diffDays = Math.ceil((rokDate - danas) / (1000 * 60 * 60 * 24));
-            if (diffDays >= 3) return "rok-siguran";
-            if (diffDays === 2) return "rok-paznja";
-            if (diffDays === 1) return "rok-hitno";
-            return "rok-isteklo";
+            for (let i = 0; i < 6; i++) {
+                let d = new Date(danas.getFullYear(), danas.getMonth() - i, 1);
+                let mes = d.getMonth();
+                let god = d.getFullYear();
+
+                let suma = podaci.reduce((acc, p) => {
+                    if (!p.rok) return acc;
+                    const [danR, mesR, godR] = p.rok.split('/').map(Number);
+                    if (mesR === (mes + 1) && godR === god) {
+                        return acc + (Number(p.cena) || 0);
+                    }
+                    return acc;
+                }, 0);
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td>${meseciImena[mes]} ${god}</td><td>${suma.toLocaleString()} RSD</td>`;
+                statsBody.appendChild(tr);
+            }
         }
 
         async function ucitajPorudzbine() {
             try {
                 const res = await fetch("/porudzbine");
                 let data = await res.json();
+                
+                osveziStatistiku(data);
+
                 if (trenutniSort === 'id') data.sort((a, b) => b.id - a.id);
                 else data.sort((a, b) => {
                     const dateA = a.rok ? new Date(a.rok.split('/').reverse().join('-')) : new Date(9999,0,1);
                     const dateB = b.rok ? new Date(b.rok.split('/').reverse().join('-')) : new Date(9999,0,1);
                     return dateA - dateB;
                 });
+
                 const lista = document.getElementById("lista");
                 lista.innerHTML = "";
                 data.forEach(p => {
                     const bojaKlasa = izracunajBojaKlasu(p.rok);
                     const statusBarKlasa = p.status === 'U izradi' ? 'bar-radi' : p.status === 'Završeno' ? 'bar-gotovo' : 'bar-novo';
                     const slikeHtml = (p.slike || "").split(",").filter(Boolean).slice(0, 4).map(url => `<img src="${url}" onclick="event.stopPropagation(); prikaziSliku('${url}')">`).join("");
+                    
                     const div = document.createElement("div");
                     div.className = `order-card ${bojaKlasa}`;
                     div.innerHTML = `
                         <div class="card-top">
-                            <div class="card-header" title="${p.proizvod}">${p.proizvod}</div>
+                            <div class="card-header">${p.proizvod}</div>
                             <div class="card-tags">${p.pismo} | ${p.stil}</div>
                             <div class="card-date">📅 ${p.rok || 'Bez roka'}</div>
                             <div class="card-images">${slikeHtml}</div>
@@ -169,14 +198,28 @@
                     `;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.log("Refresh error"); }
+            } catch (e) { console.log("Greška pri učitavanju"); }
+        }
+
+        // POMOĆNE FUNKCIJE
+        function promeniSort(tip) { trenutniSort = tip; ucitajPorudzbine(); }
+        
+        function izracunajBojaKlasu(datumRoka) {
+            if (!datumRoka || datumRoka === "Bez roka") return "rok-siguran";
+            const [dan, mesec, godina] = datumRoka.split('/').map(Number);
+            const rokDate = new Date(godina, mesec - 1, dan);
+            const danas = new Date(); danas.setHours(0,0,0,0);
+            const diffDays = Math.ceil((rokDate - danas) / (1000 * 60 * 60 * 24));
+            if (diffDays >= 3) return "rok-siguran";
+            if (diffDays === 2) return "rok-paznja";
+            if (diffDays === 1) return "rok-hitno";
+            return "rok-isteklo";
         }
 
         function prikaziSliku(url) {
-            const m = document.getElementById("imgModal");
             const img = document.getElementById("modalImg");
             img.src = url;
-            m.style.display = "flex";
+            document.getElementById("imgModal").style.display = "flex";
         }
 
         async function dodajPorudzbinu() {
@@ -188,7 +231,10 @@
             fd.append("rok", document.getElementById("rok").value);
             fd.append("cena", document.getElementById("cena").value);
             [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
+            
             await fetch("/porudzbine", { method: "POST", body: fd });
+            
+            // Reset polja
             document.getElementById("proizvod").value = "";
             document.getElementById("komentar").value = "";
             document.getElementById("cena").value = "";
@@ -224,7 +270,12 @@
             ucitajPorudzbine();
         }
 
-        async function obrisi(id) { if(confirm("Obriši?")) { await fetch(`/porudzbine/${id}`, { method: "DELETE" }); ucitajPorudzbine(); } }
+        async function obrisi(id) {
+            if(confirm("Obriši stavku?")) {
+                await fetch(`/porudzbine/${id}`, { method: "DELETE" });
+                ucitajPorudzbine();
+            }
+        }
 
         setInterval(ucitajPorudzbine, 5000);
         ucitajPorudzbine();
