@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine v5</title>
+    <title>Sistem za Porudžbine v6</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -68,8 +68,7 @@
             <label>Napomena:</label>
             <textarea id="editKomentar" style="height: 60px;"></textarea>
             <label>Rok isporuke:</label>
-            <input id="editRok">
-            <label>Cena (RSD):</label>
+            <input id="editRok" readonly> <label>Cena (RSD):</label>
             <input id="editCena" type="number">
             <button class="primary" onclick="sacuvajEdit()">SAČUVAJ IZMENE</button>
             <button style="background: #444; margin-top: 10px;" onclick="document.getElementById('editModal').style.display='none'">ODUSTANI</button>
@@ -81,7 +80,6 @@
     <script>
         let trenutniSort = 'id';
         const mainPicker = flatpickr("#rok", { dateFormat: "d/m/Y" });
-        // POPRAVKA: Kalendar u editu sada reaguje na svaku promenu
         const editPicker = flatpickr("#editRok", { dateFormat: "d/m/Y", allowInput: true });
         let trenutniEditId = null;
 
@@ -139,8 +137,9 @@
             document.getElementById("editProizvod").value = p.proizvod;
             document.getElementById("editKomentar").value = p.komentar || "";
             document.getElementById("editCena").value = p.cena || "";
-            // POPRAVKA: Ako je rok prazan, postavi prazno, inače postavi datum
-            if(p.rok) {
+            
+            // VAŽNO: Resetujemo kalendar i upisujemo stari datum ako postoji
+            if(p.rok && p.rok !== "Bez roka") {
                 editPicker.setDate(p.rok, true);
             } else {
                 editPicker.clear();
@@ -149,19 +148,22 @@
         }
 
         async function sacuvajEdit() {
-            // POPRAVKA: Prisilno uzimamo vrednost iz input polja koje drži flatpickr
-            const noviRok = document.getElementById("editRok").value;
+            // KLJUČNA PROMENA: Direktno čitamo vrednost iz input polja
+            const datumIzInputa = document.getElementById("editRok").value;
+            
             const data = {
                 proizvod: document.getElementById("editProizvod").value,
                 komentar: document.getElementById("editKomentar").value,
-                rok: noviRok,
+                rok: datumIzInputa,
                 cena: document.getElementById("editCena").value
             };
+
             await fetch(`/porudzbine/${trenutniEditId}`, { 
                 method: "PUT", 
                 headers: {"Content-Type":"application/json"}, 
                 body: JSON.stringify(data) 
             });
+            
             document.getElementById("editModal").style.display = "none";
             ucitajPorudzbine();
         }
@@ -176,6 +178,7 @@
             fd.append("cena", document.getElementById("cena").value);
             [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
             await fetch("/porudzbine", { method: "POST", body: fd });
+            
             document.getElementById("proizvod").value = "";
             document.getElementById("komentar").value = "";
             document.getElementById("slike").value = "";
