@@ -3,75 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine</title>
+    <title>Sistem za Porudžbine v2</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         body { margin: 0; background: #0f0f0f; font-family: 'Segoe UI', Arial, sans-serif; color: white; }
         
-        /* FORMA */
-        .card-form { position: fixed; top: 0; left: 0; width: 250px; height: 100vh; background: #1a1a1a; padding: 15px; box-sizing: border-box; border-right: 1px solid #333; z-index: 100; }
-        input, textarea, select, button { width: 100%; padding: 7px; border-radius: 5px; border: 1px solid #333; margin-top: 8px; background: #252525; color: white; font-size: 12px; }
-        button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        /* FORMA ZA UNOS */
+        .card-form { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: #1a1a1a; padding: 20px; box-sizing: border-box; border-right: 1px solid #333; z-index: 100; overflow-y: auto; }
+        input, textarea, select, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #333; margin-top: 10px; background: #252525; color: white; font-size: 14px; }
+        button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; padding: 12px; }
+        .upload-label { font-size: 12px; color: #aaa; margin-top: 15px; display: block; }
 
         /* LISTA KARTICA */
-        #lista { margin-left: 260px; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(3cm, 1fr)); gap: 15px; }
+        #lista { margin-left: 300px; padding: 30px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 25px; }
 
-        /* KARTICA 3x5 cm (približno) */
+        /* KARTICA 4x6 cm */
         .order-card { 
-            width: 3cm; 
-            height: 5.5cm; /* Malo više od 5cm da stane dugme za status */
-            background: #fff; 
+            width: 4cm; 
+            height: 6.5cm; 
             color: #222; 
-            border-radius: 8px; 
-            padding: 8px; 
+            border-radius: 12px; 
+            padding: 12px; 
             display: flex; 
             flex-direction: column; 
             justify-content: space-between; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
-            font-size: 10px; 
-            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.6); 
             box-sizing: border-box;
+            transition: transform 0.2s;
         }
+        .order-card:hover { transform: scale(1.02); }
 
-        .status-novo { border-top: 5px solid #9e9e9e; background: #ffffff; }
-        .status-radi { border-top: 5px solid #2196f3; background: #e3f2fd; }
-        .status-gotovo { border-top: 5px solid #4caf50; background: #e8f5e9; }
+        /* STATUSNE BOJE */
+        .status-novo { background: #ffffff; border: 2px solid #ccc; }
+        .status-radi { background: #d8ebff; border: 2px solid #2196f3; }
+        .status-gotovo { background: #dff3df; border: 2px solid #4caf50; }
 
-        .card-header { font-weight: bold; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .card-tags { font-size: 8px; color: #666; font-weight: bold; }
+        .card-header { font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #000; }
+        .card-date { font-size: 13px; font-weight: bold; color: #444; margin-top: 5px; }
+        .card-tags { font-size: 11px; color: #555; font-style: italic; }
         
-        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px; margin: 5px 0; }
-        .card-images img { width: 100%; height: 25px; object-fit: cover; border-radius: 3px; cursor: pointer; }
+        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 8px 0; }
+        .card-images img { width: 100%; height: 35px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
 
-        .price { font-weight: bold; color: #1976d2; font-size: 11px; }
-        select { font-size: 9px; padding: 2px; }
-        .actions { display: flex; justify-content: space-between; margin-top: 5px; }
-        .actions span { cursor: pointer; font-size: 14px; }
+        .price { font-weight: bold; color: #1565c0; font-size: 15px; margin-top: 5px; }
+        .status-text { font-size: 12px; font-weight: bold; text-align: center; margin-top: 5px; text-transform: uppercase; }
 
-        /* MODAL */
+        .actions { display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); }
+        .actions span { cursor: pointer; font-size: 18px; transition: 0.2s; }
+        .actions span:hover { opacity: 0.6; }
+
+        /* MODAL ZA EDIT I SLIKE */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal img { max-width: 95%; max-height: 90vh; }
+        .modal-box { background: #1e1e1e; padding: 25px; border-radius: 15px; width: 320px; color: white; }
+        .modal img { max-width: 95%; max-height: 90vh; border-radius: 8px; }
     </style>
 </head>
 <body>
 
     <div class="card-form">
-        <h3 style="font-size: 14px; margin: 0; color: #1976d2;">Nova porudžbina</h3>
-        <input id="proizvod" placeholder="Proizvod">
-        <textarea id="komentar" placeholder="Napomena..." style="height: 50px;"></textarea>
-        <div style="display: flex; gap: 3px;">
+        <h2 style="color: #1976d2; margin-top: 0;">Nova Porudžbina</h2>
+        <input id="proizvod" placeholder="Naziv proizvoda">
+        <textarea id="komentar" placeholder="Napomena (npr. adresa, kontakt...)" style="height: 60px;"></textarea>
+        
+        <div style="display: flex; gap: 5px;">
             <select id="pismo"><option>Ćirilica</option><option>Latinica</option></select>
             <select id="stil"><option>Pisano</option><option>Štampano</option></select>
         </div>
-        <input id="rok" placeholder="Rok">
-        <input id="cena" type="number" placeholder="Cena">
-        <input id="slike" type="file" multiple>
-        <button class="primary" onclick="dodajPorudzbinu()">DODAJ</button>
-        <p style="font-size: 9px; color: #666; margin-top: 20px;">*Automatsko osvežavanje: 5s</p>
+
+        <input id="rok" placeholder="Izaberi rok isporuke">
+        <input id="cena" type="number" placeholder="Cena (RSD)">
+        
+        <label class="upload-label">Max 4 photos:</label>
+        <input id="slike" type="file" multiple accept="image/*">
+        
+        <button class="primary" onclick="dodajPorudzbinu()">DODAJ PORUDŽBINU</button>
     </div>
 
     <div id="lista"></div>
+
+    <div class="modal" id="editModal">
+        <div class="modal-box">
+            <h3 style="margin-top: 0;">Izmeni porudžbinu</h3>
+            <input id="editProizvod" placeholder="Proizvod">
+            <textarea id="editKomentar" style="height: 60px;"></textarea>
+            <input id="editRok">
+            <input id="editCena" type="number">
+            <select id="editStatus">
+                <option value="Novo">Novo</option>
+                <option value="U izradi">U izradi</option>
+                <option value="Završeno">Završeno</option>
+            </select>
+            <button class="primary" onclick="sacuvajEdit()">SAČUVAJ IZMENE</button>
+            <button style="background: #444;" onclick="document.getElementById('editModal').style.display='none'">OTKAŽI</button>
+        </div>
+    </div>
 
     <div class="modal" id="imgModal" onclick="this.style.display='none'">
         <img id="modalImg">
@@ -79,15 +105,14 @@
 
     <script>
         flatpickr("#rok", { dateFormat: "d/m/Y" });
+        const editPicker = flatpickr("#editRok", { dateFormat: "d/m/Y" });
+        let trenutniEditId = null;
 
         async function ucitajPorudzbine() {
             try {
                 const res = await fetch("/porudzbine");
                 const data = await res.json();
                 const lista = document.getElementById("lista");
-                
-                // Čuvamo poziciju skrolovanja da ne "skače" ekran kod osvežavanja
-                const scrollPos = window.scrollY;
                 lista.innerHTML = "";
 
                 data.forEach(p => {
@@ -103,24 +128,50 @@
                         <div>
                             <div class="card-header">${p.proizvod}</div>
                             <div class="card-tags">${p.pismo} | ${p.stil}</div>
-                            <div style="font-size: 9px; color: #777; margin-top: 3px;">📅 ${p.rok || ''}</div>
+                            <div class="card-date">📅 ${p.rok || 'Bez roka'}</div>
                         </div>
                         <div class="card-images">${slikeHtml}</div>
                         <div>
                             <div class="price">${p.cena || 0} RSD</div>
-                            <select onchange="promeniStatus(${p.id}, this.value)">
-                                <option ${p.status==='Novo'?'selected':''}>Novo</option>
-                                <option ${p.status==='U izradi'?'selected':''}>U izradi</option>
-                                <option ${p.status==='Završeno'?'selected':''}>Završeno</option>
-                            </select>
+                            <div class="status-text">${p.status}</div>
                             <div class="actions">
+                                <span onclick='otvoriEditModal(${JSON.stringify(p)})'>✏️</span>
                                 <span onclick="obrisi(${p.id})">🗑️</span>
                             </div>
                         </div>
                     `;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.error("Refresh error"); }
+            } catch (e) { console.error("Greška pri osvežavanju"); }
+        }
+
+        function otvoriEditModal(p) {
+            trenutniEditId = p.id;
+            document.getElementById("editProizvod").value = p.proizvod;
+            document.getElementById("editKomentar").value = p.komentar || "";
+            document.getElementById("editCena").value = p.cena || "";
+            document.getElementById("editStatus").value = p.status;
+            editPicker.setDate(p.rok);
+            document.getElementById("editModal").style.display = "flex";
+        }
+
+        async function sacuvajEdit() {
+            const data = {
+                proizvod: document.getElementById("editProizvod").value,
+                komentar: document.getElementById("editKomentar").value,
+                rok: document.getElementById("editRok").value,
+                cena: document.getElementById("editCena").value,
+                status: document.getElementById("editStatus").value
+            };
+
+            await fetch(`/porudzbine/${trenutniEditId}`, { 
+                method: "PUT", 
+                headers: {"Content-Type":"application/json"}, 
+                body: JSON.stringify(data) 
+            });
+            
+            document.getElementById("editModal").style.display = "none";
+            ucitajPorudzbine();
         }
 
         async function dodajPorudzbinu() {
@@ -134,18 +185,16 @@
             [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
 
             await fetch("/porudzbine", { method: "POST", body: fd });
+            
+            // Očisti formu
             document.getElementById("proizvod").value = "";
             document.getElementById("komentar").value = "";
             document.getElementById("slike").value = "";
             ucitajPorudzbine();
         }
 
-        async function promeniStatus(id, status) {
-            await fetch(`/porudzbine/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({status}) });
-        }
-
         async function obrisi(id) {
-            if(confirm("Obriši?")) {
+            if(confirm("Da li ste sigurni da želite da obrišete porudžbinu?")) {
                 await fetch(`/porudzbine/${id}`, { method: "DELETE" });
                 ucitajPorudzbine();
             }
@@ -156,7 +205,6 @@
             document.getElementById("imgModal").style.display = "flex";
         }
 
-        // AUTO OSVEŽAVANJE SVAKIH 5 SEKUNDI
         setInterval(ucitajPorudzbine, 5000);
         ucitajPorudzbine();
     </script>
