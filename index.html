@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine v13</title>
+    <title>Sistem za Porudžbine v14</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -13,14 +13,16 @@
         button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; padding: 12px; }
         
         .hint { font-size: 11px; color: #888; margin-top: 4px; display: block; }
-        
         .sort-box { margin-top: 25px; padding-top: 15px; border-top: 1px solid #333; }
         .btn-sort { background: #333; font-size: 12px; padding: 8px; margin-top: 8px; cursor: pointer; border: 1px solid #444; text-align: center; }
 
         #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
 
+        /* KARTICA JE SADA MALO VIŠA DA SVE STANE */
         .order-card { 
-            width: 4cm; height: 6.8cm; color: #222; border-radius: 8px; 
+            width: 4cm; 
+            height: 7.5cm; 
+            color: #222; border-radius: 8px; 
             display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
             box-sizing: border-box; transition: 0.2s; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);
         }
@@ -30,6 +32,19 @@
         .rok-hitno { background: #ffe0b2; }
         .rok-isteklo { background: #ffcdd2; }
 
+        .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .card-header { font-weight: bold; font-size: 14px; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card-tags { font-size: 12px; color: #000; font-weight: bold; margin-top: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .card-date { font-size: 12px; font-weight: bold; color: #000; margin-top: 5px; }
+        
+        /* OGRANIČEN PROSTOR ZA SLIKE */
+        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 8px 0; height: 80px; flex-shrink: 0; }
+        .card-images img { width: 100%; height: 38px; object-fit: cover; border-radius: 4px; cursor: pointer; }
+
+        /* FIKSIRAN DONJI DEO */
+        .card-bottom { margin-top: auto; flex-shrink: 0; background: rgba(0,0,0,0.02); }
+        .price-tag { font-weight: bold; font-size: 15px; color: #000; text-align: center; padding: 5px 0; }
+        
         .status-bar { padding: 8px; text-align: center; font-size: 11px; font-weight: bold; }
         .bar-novo { background: #9e9e9e !important; color: white !important; }
         .bar-radi { background: #2196f3 !important; color: white !important; }
@@ -38,24 +53,14 @@
         .status-bar select { background: transparent; border: none; color: inherit; font-weight: bold; font-size: 12px; cursor: pointer; outline: none; }
         .status-bar select option { background: white; color: black; }
 
-        .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
-        .card-header { font-weight: bold; font-size: 14px; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .card-tags { font-size: 12px; color: #000; font-weight: bold; margin-top: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); }
-        .card-date { font-size: 12px; font-weight: bold; color: #000; margin-top: 5px; }
-        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 8px 0; height: 75px; }
-        .card-images img { width: 100%; height: 35px; object-fit: cover; border-radius: 4px; cursor: pointer; }
+        .actions { display: flex; justify-content: space-around; padding: 8px 0; border-top: 1px solid rgba(0,0,0,0.1); }
+        .actions span { cursor: pointer; font-size: 18px; line-height: 1; }
 
-        .card-bottom { margin-top: auto; }
-        .price-tag { font-weight: bold; font-size: 15px; color: #000; text-align: center; padding-bottom: 5px; }
-        .actions { display: flex; justify-content: space-around; padding: 6px 0; border-top: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.05); }
-        .actions span { cursor: pointer; font-size: 18px; }
-
-        /* MODAL ZA SLIKU - FIX VISINA 8CM */
+        /* MODALI */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-box { background: #1e1e1e; padding: 20px; border-radius: 15px; width: 320px; color: white; }
-        #modalImg { height: 8cm; width: auto; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-
+        #modalImg { height: 8cm; width: auto; border-radius: 8px; }
         .modal-edit { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-box { background: #1e1e1e; padding: 20px; border-radius: 15px; width: 320px; color: white; }
     </style>
 </head>
 <body>
@@ -142,7 +147,7 @@
                     div.className = `order-card ${bojaKlasa}`;
                     div.innerHTML = `
                         <div class="card-top">
-                            <div class="card-header">${p.proizvod}</div>
+                            <div class="card-header" title="${p.proizvod}">${p.proizvod}</div>
                             <div class="card-tags">${p.pismo} | ${p.stil}</div>
                             <div class="card-date">📅 ${p.rok || 'Bez roka'}</div>
                             <div class="card-images">${slikeHtml}</div>
