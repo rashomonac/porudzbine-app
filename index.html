@@ -3,59 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.1 - Visible Status Fix</title>
+    <title>Sistem v25.3 - Button Fix</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         body { margin: 0; background: #0f0f0f; font-family: 'Segoe UI', Arial, sans-serif; color: white; }
         .card-form { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: #1a1a1a; padding: 12px; box-sizing: border-box; border-right: 1px solid #333; z-index: 100; overflow-y: auto; }
-        input, textarea, select, button { width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #333; margin-top: 4px; background: #252525; color: white; font-size: 13px; box-sizing: border-box; }
-        button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; padding: 10px; }
+        input, textarea, select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; margin-top: 5px; background: #252525; color: white; font-size: 13px; box-sizing: border-box; }
         
-        .stats-table { width: 100%; margin-top: 12px; border-collapse: collapse; font-size: 11px; background: #222; border-radius: 8px; overflow: hidden; }
-        .stats-table th { background: #1976d2; color: white; padding: 5px; text-align: left; }
-        .stats-table td { padding: 5px; border-bottom: 1px solid #333; color: #ddd; }
+        /* OVO DUGME SADA RADI 100% */
+        .btn-add { 
+            width: 100%; 
+            background: #1976d2; 
+            color: white; 
+            border: none; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            padding: 15px; 
+            border-radius: 8px; 
+            text-transform: uppercase;
+            font-size: 14px;
+            display: block;
+            position: relative;
+            z-index: 110; /* Iznad svega ostalog u formi */
+        }
+        .btn-add:active { background: #115293; transform: scale(0.98); }
 
-        .sort-container { margin-top: 15px; padding-top: 10px; border-top: 1px solid #333; }
-        .sort-label { font-size: 11px; color: #1976d2; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 2px; }
-        #sortiranje { border: 1px solid #1976d2; background: #1a1a1a; cursor: pointer; }
+        .stats-table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 11px; background: #222; border-radius: 8px; }
+        .stats-table th { background: #333; padding: 6px; text-align: left; }
+        .stats-table td { padding: 6px; border-bottom: 1px solid #333; }
 
+        .sort-container { margin-top: 15px; padding: 10px 0; border-top: 1px solid #444; }
+        
         #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
-        .order-card { width: 4cm; height: 7.5cm; color: #222; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
+        .order-card { width: 4cm; height: 7.5cm; color: #222; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
         
         .rok-siguran { background: #c8e6c9; } .rok-paznja { background: #fff9c4; } .rok-hitno { background: #ffe0b2; } .rok-isteklo { background: #ffcdd2; }
 
         .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
         .card-header { font-weight: 900; font-size: 13px; color: #000; text-transform: uppercase; }
-        .card-comment { font-size: 11px; color: #333; font-weight: 600; line-height: 1.1; margin: 2px 0; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 2px; }
-        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 4px 0; height: 85px; flex-shrink: 0; }
+        .card-comment { font-size: 11px; color: #333; font-weight: 600; line-height: 1.1; margin: 2px 0; }
+        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 5px; height: 85px; }
         .card-images img { width: 100%; height: 40px; object-fit: cover; border-radius: 4px; }
 
         .card-bottom { margin-top: auto; }
         .price-tag { font-weight: 900; font-size: 14px; color: #000; text-align: center; padding: 2px 0; }
         
-        /* FIX ZA STATUS BAR I VIDLJIVE LABELE */
-        .status-bar { padding: 2px; text-align: center; height: 20px; display: flex; align-items: center; }
-        .bar-novo { background: #757575 !important; } .bar-radi { background: #1976d2 !important; } .bar-gotovo { background: #388e3c !important; }
-        
-        .status-bar select { 
-            background: transparent; border: none; color: white !important; 
-            font-weight: 900; font-size: 11px; width: 100%; cursor: pointer; 
-            text-align: center; -webkit-appearance: none; appearance: none;
-        }
-        /* OSIGURAVANJE DA SU OPCIJE VIDLJIVE */
-        .status-bar select option { 
-            background-color: #ffffff !important; 
-            color: #000000 !important; 
-            font-weight: bold;
-        }
+        .status-bar { padding: 2px; height: 20px; display: flex; align-items: center; justify-content: center; }
+        .bar-novo { background: #757575; } .bar-radi { background: #1976d2; } .bar-gotovo { background: #388e3c; }
+        .status-bar select { background: transparent; border: none; color: white !important; font-weight: 900; font-size: 11px; width: 100%; cursor: pointer; text-align: center; appearance: none; -webkit-appearance: none; margin: 0; padding: 0; }
+        .status-bar select option { background: #fff; color: #000; font-weight: bold; }
 
         .actions { display: flex; justify-content: space-around; padding: 4px 0; background: rgba(255,255,255,0.2); }
-        .actions span { cursor: pointer; font-size: 16px; }
+        .actions span { cursor: pointer; }
 
         .modal-edit { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1001; }
-        .edit-box { background: #1a1a1a; padding: 20px; border-radius: 12px; width: 300px; border: 1px solid #333; }
-        .edit-label { color: #1976d2; font-size: 11px; font-weight: bold; display: block; margin-top: 6px; text-transform: uppercase; }
+        .edit-box { background: #1a1a1a; padding: 20px; border-radius: 12px; width: 300px; }
         .modal-img { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1002; }
         #modalImg { height: 8cm; width: auto; border-radius: 8px; }
     </style>
@@ -63,7 +67,7 @@
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0; font-size: 17px;">Sistem v25.1</h2>
+        <h2 style="color: #1976d2; margin: 0 0 10px 0; font-size: 18px;">Sistem v25.3</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 35px;"></textarea>
         <div style="display: flex; gap: 4px;">
@@ -73,18 +77,19 @@
         <input id="rok" placeholder="Rok isporuke">
         <input id="cena" type="number" placeholder="Cena (RSD)">
         <input id="slike" type="file" multiple>
-        <button class="primary" onclick="dodajPorudzbinu()">DODAJ PORUDŽBINU</button>
+        
+        <button class="btn-add" onclick="dodajPorudzbinu()">DODAJ PORUDŽBINU</button>
 
         <table class="stats-table">
-            <thead><tr><th>Mesec</th><th>Zarada (RSD)</th></tr></thead>
+            <thead><tr><th>Mesec</th><th>Zarada</th></tr></thead>
             <tbody id="statsBody"></tbody>
         </table>
 
         <div class="sort-container">
-            <span class="sort-label">Prikaz liste:</span>
+            <span style="font-size: 11px; color:#1976d2; font-weight:bold;">SORTIRANJE LISTE:</span>
             <select id="sortiranje" onchange="ucitajPorudzbine()">
-                <option value="rok">Prioritet (Po roku)</option>
-                <option value="vreme">Hronološki (Novo prvo)</option>
+                <option value="rok">Po roku (Hitno prvo)</option>
+                <option value="vreme">Po vremenu (Novo prvo)</option>
             </select>
         </div>
     </div>
@@ -93,17 +98,13 @@
 
     <div class="modal-edit" id="editModal">
         <div class="edit-box">
-            <h3 style="margin:0; color:#1976d2;">Izmeni stavku</h3>
-            <span class="edit-label">Naziv</span><input id="editProizvod">
-            <span class="edit-label">Napomena</span><textarea id="editKomentar" style="height: 40px;"></textarea>
-            <div style="display: flex; gap: 4px;">
-                <div style="flex:1"><span class="edit-label">Pismo</span><select id="editPismo"><option>Ćirilica</option><option>Latinica</option></select></div>
-                <div style="flex:1"><span class="edit-label">Stil</span><select id="editStil"><option>Pisano</option><option>Štampano</option></select></div>
-            </div>
-            <span class="edit-label">Novi Rok</span><input id="editRok">
-            <span class="edit-label">Cena</span><input id="editCena" type="number">
-            <button class="primary" onclick="sacuvajEdit()">SAČUVAJ</button>
-            <button style="background: #444; margin-top: 8px;" onclick="document.getElementById('editModal').style.display='none'">OTKAŽI</button>
+            <h3 style="margin-top:0;">Izmeni</h3>
+            <input id="editProizvod">
+            <textarea id="editKomentar" style="height: 50px;"></textarea>
+            <input id="editRok">
+            <input id="editCena" type="number">
+            <button class="btn-add" onclick="sacuvajEdit()">SAČUVAJ</button>
+            <button onclick="document.getElementById('editModal').style.display='none'" style="margin-top:10px;">ZATVORI</button>
         </div>
     </div>
 
@@ -128,28 +129,24 @@
                 
                 const statsBody = document.getElementById("statsBody");
                 statsBody.innerHTML = "";
-                const imenaM = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Avg", "Sep", "Okt", "Nov", "Dec"];
                 const dan = new Date();
-                for(let i=0; i<6; i++) {
+                for(let i=0; i<3; i++) {
                     let d = new Date(dan.getFullYear(), dan.getMonth()-i, 1);
-                    let mIdx = d.getMonth(); let gIdx = d.getFullYear();
+                    let m = d.getMonth()+1; let g = d.getFullYear();
                     let suma = data.reduce((acc, p) => {
                         if(!p.rok) return acc;
                         const [dR, mR, gR] = p.rok.split('/').map(Number);
-                        return (mR === mIdx+1 && gR === gIdx) ? acc + (Number(p.cena)||0) : acc;
+                        return (mR === m && gR === g) ? acc + (Number(p.cena)||0) : acc;
                     }, 0);
-                    statsBody.innerHTML += `<tr><td>${imenaM[mIdx]} ${gIdx}</td><td>${suma.toLocaleString()}</td></tr>`;
+                    statsBody.innerHTML += `<tr><td>${m}/${g}</td><td>${suma}</td></tr>`;
                 }
 
                 data.sort((a, b) => {
                     if (sortTip === "rok") {
-                        const rokA = datumUBroj(a.rok);
-                        const rokB = datumUBroj(b.rok);
-                        if (rokA !== rokB) return rokA - rokB;
-                        return b.id - a.id; 
-                    } else {
-                        return b.id - a.id;
+                        const rA = datumUBroj(a.rok); const rB = datumUBroj(b.rok);
+                        return rA !== rB ? rA - rB : b.id - a.id;
                     }
+                    return b.id - a.id;
                 });
 
                 const lista = document.getElementById("lista");
@@ -163,10 +160,10 @@
                     div.className = `order-card ${boja}`;
                     div.innerHTML = `
                         <div class="card-top">
-                            <span class="card-header">${p.proizvod || 'BEZ NAZIVA'}</span>
-                            <span class="card-comment">${p.komentar || 'Nema napomene'}</span>
-                            <div class="card-tags">${p.pismo} | ${p.stil}</div>
-                            <div class="card-date">📅 ${p.rok || 'Bez roka'}</div>
+                            <span class="card-header">${p.proizvod || 'NEMA'}</span>
+                            <span class="card-comment">${p.komentar || ''}</span>
+                            <div style="font-size:9px; opacity:0.7;">${p.pismo} | ${p.stil}</div>
+                            <div style="font-size:10px; font-weight:bold; margin-top:2px;">📅 ${p.rok || ''}</div>
                             <div class="card-images">${slike}</div>
                         </div>
                         <div class="card-bottom">
@@ -185,36 +182,7 @@
                         </div>`;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.error("Greška"); }
-        }
-
-        function otvoriEdit(p) {
-            trenutniEditId = p.id;
-            document.getElementById("editProizvod").value = p.proizvod;
-            document.getElementById("editKomentar").value = p.komentar || "";
-            document.getElementById("editPismo").value = p.pismo;
-            document.getElementById("editStil").value = p.stil;
-            document.getElementById("editCena").value = p.cena || "";
-            if(p.rok) editPicker.setDate(p.rok);
-            document.getElementById("editModal").style.display = "flex";
-        }
-
-        async function sacuvajEdit() {
-            const data = {
-                proizvod: document.getElementById("editProizvod").value,
-                komentar: document.getElementById("editKomentar").value,
-                pismo: document.getElementById("editPismo").value,
-                stil: document.getElementById("editStil").value,
-                rok: document.getElementById("editRok").value,
-                cena: document.getElementById("editCena").value
-            };
-            await fetch(`/porudzbine/${trenutniEditId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-            document.getElementById("editModal").style.display = "none";
-            ucitajPorudzbine();
+            } catch (e) { console.log(e); }
         }
 
         async function dodajPorudzbinu() {
@@ -226,8 +194,38 @@
             fd.append("rok", document.getElementById("rok").value);
             fd.append("cena", document.getElementById("cena").value);
             [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
+            
+            const btn = document.querySelector(".btn-add");
+            btn.innerText = "SLANJE...";
+            btn.disabled = true;
+
             await fetch("/porudzbine", { method: "POST", body: fd });
             location.reload(); 
+        }
+
+        function otvoriEdit(p) {
+            trenutniEditId = p.id;
+            document.getElementById("editProizvod").value = p.proizvod;
+            document.getElementById("editKomentar").value = p.komentar || "";
+            document.getElementById("editCena").value = p.cena || "";
+            if(p.rok) editPicker.setDate(p.rok);
+            document.getElementById("editModal").style.display = "flex";
+        }
+
+        async function sacuvajEdit() {
+            const data = {
+                proizvod: document.getElementById("editProizvod").value,
+                komentar: document.getElementById("editKomentar").value,
+                rok: document.getElementById("editRok").value,
+                cena: document.getElementById("editCena").value
+            };
+            await fetch(`/porudzbine/${trenutniEditId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            document.getElementById("editModal").style.display = "none";
+            ucitajPorudzbine();
         }
 
         function izracunajBojaKlasu(d) {
