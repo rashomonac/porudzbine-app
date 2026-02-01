@@ -2,6 +2,7 @@
 <html lang="sr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Porudžbine</title>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -12,7 +13,7 @@
 body{
   margin:0;
   background:#0f0f0f;
-  font-family:Arial;
+  font-family:Arial, sans-serif;
   color:white;
 }
 
@@ -24,330 +25,341 @@ body{
   width:260px;
   background:#1e1e1e;
   border-radius:12px;
-  padding:10px;
+  padding:15px;
   z-index:10;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-input,textarea,select,button{
-  width:100%;
-  padding:6px;
-  border-radius:6px;
-  border:none;
-  margin-top:6px;
-  font-size:13px;
+input, textarea, select, button {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  margin-top: 8px;
+  font-size: 13px;
+  background: #2b2b2b;
+  color: white;
+  box-sizing: border-box;
 }
 
-.row{display:flex;gap:6px}
-button.primary{background:#1976d2;color:white;font-weight:bold}
+.row{ display:flex; gap:6px; }
+button.primary{ background:#1976d2; color:white; font-weight:bold; cursor:pointer; border:none; }
+button.primary:hover{ background:#1565c0; }
 
-#sortiranje{margin-top:6px}
+#sortiranje{ margin-top:10px; background: #1e1e1e; }
 
 /* ================= LISTA ================= */
-#lista{
-  margin-left:290px;
-  padding:20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,4cm);
-  gap:10mm;
-  background:#151515;
-  min-height:100vh;
+#lista {
+  margin-left: 310px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr));
+  gap: 20px;
+  background: #151515;
+  min-height: 100vh;
 }
 
 /* ================= KARTICA ================= */
-.order-card{
-  background:#f5efe6;
-  color:#222;
-  border-radius:14px;
-  padding:8px;
-  width:4cm;
-  height:6cm;
-  font-size:12px;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  border:1px solid #e1d8c8;
-  box-shadow:0 5px 12px rgba(0,0,0,.25);
+.order-card {
+  background: #f5efe6;
+  color: #222;
+  border-radius: 14px;
+  padding: 12px;
+  width: 4cm;
+  min-height: 6cm;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid #e1d8c8;
+  box-shadow: 0 5px 12px rgba(0,0,0,.25);
+  transition: transform 0.2s;
 }
+
+.order-card:hover { transform: translateY(-5px); }
 
 /* STATUS BOJE KARTICE */
-.order-card.status-novo{background:#eee}
-.order-card.status-radi{background:#d8ebff}
-.order-card.status-gotovo{background:#dff3df}
+.status-novo { background: #ffffff !important; }
+.status-radi { background: #d8ebff !important; }
+.status-gotovo { background: #dff3df !important; }
 
 /* ================= SLIKE ================= */
-.card-images{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:3px;
+.card-images {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+  margin: 10px 0;
 }
 
-.card-images img{
-  height:32px;
-  object-fit:cover;
-  border-radius:4px;
-  cursor:pointer;
-}
-
-/* ================= BADGE ROK ================= */
-.badge{
-  padding:3px 8px;
-  border-radius:10px;
-  color:white;
-  font-size:11px;
-}
-
-.rok-ok{background:#81c784}
-.rok-warning{background:#ffb74d}
-.rok-danger{background:#e57373}
-
-/* ================= STATUS SELECT ================= */
-.status{
-  border:none;
-  border-radius:6px;
-  padding:4px;
-  font-weight:bold;
-  font-size:11px;
+.card-images img {
+  width: 100%;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #ddd;
 }
 
 /* ================= ACTIONS ================= */
-.actions{
-  display:flex;
-  justify-content:center;
-  gap:12px;
+.actions {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
 }
 
-.actions span{
-  cursor:pointer;
-  font-size:16px;
-}
+.actions span { cursor: pointer; font-size: 18px; }
 
 /* ================= MODALI ================= */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.8);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
 }
 
-.modal img{max-height:8cm}
+#modalImg { max-width: 90%; max-height: 80vh; border-radius: 8px; }
 
-.modal-box{
-  background:#222;
-  padding:15px;
-  border-radius:12px;
-  width:260px;
+.modal-box {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 12px;
+  width: 300px;
+  color: white;
 }
+
+.modal-box h3 { margin-top: 0; }
+.modal-box button { margin-top: 10px; cursor: pointer; }
 </style>
 </head>
 
 <body>
 
-<!-- ================= FORMA ================= -->
 <div class="card-form">
+  <input id="proizvod" placeholder="Proizvod">
+  <textarea id="komentar" placeholder="Komentar"></textarea>
 
-<input id="proizvod" placeholder="Proizvod">
-<textarea id="komentar" placeholder="Komentar"></textarea>
+  <div class="row">
+    <select id="pismo">
+      <option>Ćirilica</option>
+      <option>Latinica</option>
+    </select>
+    <select id="stil">
+      <option>Pisano</option>
+      <option>Štampano</option>
+    </select>
+  </div>
 
-<div class="row">
-  <select id="pismo">
-    <option>Ćirilica</option>
-    <option>Latinica</option>
-  </select>
+  <input id="rok" placeholder="Rok (dd/mm/yyyy)">
+  <input id="cena" type="number" placeholder="Cena">
+  <input id="slike" type="file" multiple accept="image/*">
 
-  <select id="stil">
-    <option>Pisano</option>
-    <option>Štampano</option>
+  <button class="primary" onclick="dodajPorudzbinu()">Dodaj porudžbinu</button>
+
+  <hr style="border: 0.5px solid #333; margin: 15px 0;">
+
+  <label style="font-size: 11px; color: #888;">Sortiraj prikaz:</label>
+  <select id="sortiranje" onchange="ucitajPorudzbine()">
+    <option value="id">Po unosu (novije prvo)</option>
+    <option value="rok">Po roku</option>
   </select>
 </div>
 
-<input id="rok" placeholder="Rok (dd/mm/yyyy)">
-<input id="cena" type="number" placeholder="Cena">
-
-<input id="slike" type="file" multiple accept="image/*">
-
-<button class="primary" onclick="dodajPorudzbinu()">Dodaj</button>
-
-<hr>
-
-<select id="sortiranje" onchange="promeniSort(this.value)">
-  <option value="unos">Po unosu</option>
-  <option value="rok">Po roku</option>
-</select>
-
-</div>
-
-<!-- ================= LISTA ================= -->
 <div id="lista"></div>
 
-<!-- ================= IMAGE MODAL ================= -->
 <div class="modal" id="imgModal" onclick="this.style.display='none'">
   <img id="modalImg">
 </div>
 
-<!-- ================= EDIT MODAL ================= -->
 <div class="modal" id="editModal">
   <div class="modal-box">
-    <h3>Edit porudžbine</h3>
-
-    <input id="editProizvod">
-    <textarea id="editKomentar"></textarea>
+    <h3>Izmeni porudžbinu</h3>
+    <input id="editProizvod" placeholder="Proizvod">
+    <textarea id="editKomentar" placeholder="Komentar"></textarea>
     <input id="editRok">
     <input id="editCena" type="number">
-
     <select id="editStatus">
-      <option>Novo</option>
-      <option>U izradi</option>
-      <option>Završeno</option>
+      <option value="Novo">Novo</option>
+      <option value="U izradi">U izradi</option>
+      <option value="Završeno">Završeno</option>
     </select>
-
-    <input id="editSlike" type="file" multiple>
-
-    <button onclick="sacuvajEdit()">Sačuvaj</button>
-    <button onclick="editModal.style.display='none'">Otkaži</button>
+    <button class="primary" onclick="sacuvajEdit()">Sačuvaj izmene</button>
+    <button style="background:#444;" onclick="zatvoriEdit()">Otkaži</button>
   </div>
 </div>
 
 <script>
 /* ================= GLOBAL ================= */
-const slike=document.getElementById("slike");
-const editSlike=document.getElementById("editSlike");
-const imgModal=document.getElementById("imgModal");
-const modalImg=document.getElementById("modalImg");
-const editModal=document.getElementById("editModal");
+const API_URL = ""; // Ostavi prazno ako je index.html na istom serveru kao i backend
+let editId = null;
 
-let trenutnoSort="unos";
-let editId=null;
+/* ================= INICIJALIZACIJA ================= */
+flatpickr("#rok", { dateFormat: "d/m/Y" });
+const editPicker = flatpickr("#editRok", { dateFormat: "d/m/Y" });
 
-/* ================= KALENDAR ================= */
-flatpickr("#rok",{dateFormat:"d/m/Y"});
-flatpickr("#editRok",{dateFormat:"d/m/Y"});
-
-/* ================= STATUS KLASE ================= */
-const statusKlasa=s=>{
-  if(s==="U izradi")return"status-radi";
-  if(s==="Završeno")return"status-gotovo";
-  return"status-novo";
+const statusKlasa = s => {
+  if (s === "U izradi") return "status-radi";
+  if (s === "Završeno") return "status-gotovo";
+  return "status-novo";
 };
 
-/* ================= ADD ================= */
-async function dodajPorudzbinu(){
-  const fd=new FormData();
-  fd.append("proizvod",proizvod.value);
-  fd.append("komentar",komentar.value);
-  fd.append("pismo",pismo.value);
-  fd.append("stil",stil.value);
-  fd.append("rok",rok.value);
-  fd.append("cena",cena.value);
+/* ================= DODAVANJE ================= */
+async function dodajPorudzbinu() {
+  const btn = document.querySelector('button.primary');
+  const proizvod = document.getElementById("proizvod");
+  const komentar = document.getElementById("komentar");
+  const pismo = document.getElementById("pismo");
+  const stil = document.getElementById("stil");
+  const rok = document.getElementById("rok");
+  const cena = document.getElementById("cena");
+  const slike = document.getElementById("slike");
 
-  [...slike.files].slice(0,4).forEach(f=>fd.append("slike",f));
+  if(!proizvod.value) return alert("Unesite naziv proizvoda!");
 
-  await fetch("/porudzbine",{method:"POST",body:fd});
-  ucitajPorudzbine();
-}
+  const fd = new FormData();
+  fd.append("proizvod", proizvod.value);
+  fd.append("komentar", komentar.value);
+  fd.append("pismo", pismo.value);
+  fd.append("stil", stil.value);
+  fd.append("rok", rok.value);
+  fd.append("cena", cena.value);
 
-/* ================= SORT ================= */
-function promeniSort(v){
-  trenutnoSort=v;
-  ucitajPorudzbine();
-}
+  [...slike.files].forEach(f => fd.append("slike", f));
 
-/* ================= STATUS CHANGE ================= */
-async function promeniStatus(id,status,selectEl){
-  const fd=new FormData();
-  fd.append("status",status);
+  btn.innerText = "Slanje...";
+  btn.disabled = true;
 
-  await fetch(`/porudzbine/${id}`,{
-    method:"PUT",
-    body:fd
-  });
-
-  const card=selectEl.closest(".order-card");
-  card.classList.remove("status-novo","status-radi","status-gotovo");
-  card.classList.add(statusKlasa(status));
-}
-
-/* ================= EDIT ================= */
-function otvoriEdit(p){
-  editId=p.id;
-  editProizvod.value=p.proizvod;
-  editKomentar.value=p.komentar;
-  editRok.value=p.rok;
-  editCena.value=p.cena;
-  editStatus.value=p.status||"Novo";
-  editModal.style.display="flex";
-}
-
-async function sacuvajEdit(){
-  const fd=new FormData();
-  fd.append("proizvod",editProizvod.value);
-  fd.append("komentar",editKomentar.value);
-  fd.append("rok",editRok.value);
-  fd.append("cena",editCena.value);
-  fd.append("status",editStatus.value);
-
-  [...editSlike.files].slice(0,4).forEach(f=>fd.append("slike",f));
-
-  await fetch(`/porudzbine/${editId}`,{method:"PUT",body:fd});
-  editModal.style.display="none";
-  ucitajPorudzbine();
-}
-
-/* ================= DELETE ================= */
-async function obrisi(id){
-  if(!confirm("Obrisati porudžbinu?"))return;
-  await fetch(`/porudzbine/${id}`,{method:"DELETE"});
-  ucitajPorudzbine();
-}
-
-/* ================= LOAD ================= */
-async function ucitajPorudzbine(){
-  const res=await fetch("/porudzbine");
-  let data=await res.json();
-
-  if(trenutnoSort==="rok"){
-    data.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  try {
+    const res = await fetch(`${API_URL}/porudzbine`, { method: "POST", body: fd });
+    if (res.ok) {
+      proizvod.value = ""; komentar.value = ""; rok.value = ""; cena.value = ""; slike.value = "";
+      ucitajPorudzbine();
+    } else {
+      alert("Greška na serveru.");
+    }
+  } catch (err) {
+    alert("Greška u povezivanju.");
+  } finally {
+    btn.innerText = "Dodaj porudžbinu";
+    btn.disabled = false;
   }
-
-  lista.innerHTML="";
-
-  data.forEach(p=>{
-    const div=document.createElement("div");
-    div.className="order-card "+statusKlasa(p.status||"Novo");
-
-    const imgs=(p.slike||"").split(",").filter(Boolean)
-      .map(f=>`<img src="/uploads/${f}" onclick="imgModal.style.display='flex';modalImg.src='/uploads/${f}'">`)
-      .join("");
-
-    div.innerHTML=`
-      <b>${p.proizvod}</b>
-      <div>${p.komentar}</div>
-
-      <div class="card-images">${imgs}</div>
-
-      <div>${p.cena} RSD</div>
-
-      <select class="status"
-        onchange="promeniStatus(${p.id},this.value,this)">
-        <option ${p.status==="Novo"?"selected":""}>Novo</option>
-        <option ${p.status==="U izradi"?"selected":""}>U izradi</option>
-        <option ${p.status==="Završeno"?"selected":""}>Završeno</option>
-      </select>
-
-      <div class="actions">
-        <span onclick='otvoriEdit(${JSON.stringify(p)})'>✏️</span>
-        <span onclick="obrisi(${p.id})">🗑</span>
-      </div>
-    `;
-
-    lista.appendChild(div);
-  });
 }
 
-/* ================= AUTO REFRESH ================= */
-setInterval(ucitajPorudzbine,5000);
+/* ================= UČITAVANJE ================= */
+async function ucitajPorudzbine() {
+  const lista = document.getElementById("lista");
+  const sort = document.getElementById("sortiranje").value;
+
+  try {
+    const res = await fetch(`${API_URL}/porudzbine`);
+    let data = await res.json();
+
+    // Sortiranje na frontendu
+    if (sort === "rok") {
+      data.sort((a, b) => a.rok.localeCompare(b.rok));
+    }
+
+    lista.innerHTML = "";
+    data.forEach(p => {
+      const div = document.createElement("div");
+      div.className = `order-card ${statusKlasa(p.status)}`;
+
+      const imgs = (p.slike || "").split(",").filter(Boolean).map(url => 
+        `<img src="${url}" onclick="otvoriSliku('${url}')">`
+      ).join("");
+
+      div.innerHTML = `
+        <div>
+          <b style="font-size:14px">${p.proizvod}</b>
+          <div style="color:#555; margin-top:4px; font-style:italic">${p.komentar || ''}</div>
+          <div style="font-size:10px; color:#777; margin-top:5px">Rok: ${p.rok || 'Nema'}</div>
+        </div>
+        
+        <div class="card-images">${imgs}</div>
+        
+        <div style="font-weight:bold; color:#1976d2">${p.cena ? p.cena + ' RSD' : ''}</div>
+
+        <select class="status" onchange="promeniStatus(${p.id}, this.value)">
+          <option ${p.status === 'Novo' ? 'selected' : ''}>Novo</option>
+          <option ${p.status === 'U izradi' ? 'selected' : ''}>U izradi</option>
+          <option ${p.status === 'Završeno' ? 'selected' : ''}>Završeno</option>
+        </select>
+
+        <div class="actions">
+          <span onclick='otvoriEdit(${JSON.stringify(p)})'>✏️</span>
+          <span onclick="obrisi(${p.id})">🗑️</span>
+        </div>
+      `;
+      lista.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Greška pri učitavanju:", err);
+  }
+}
+
+/* ================= STATUS I BRISANJE ================= */
+async function promeniStatus(id, noviStatus) {
+  await fetch(`${API_URL}/porudzbine/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: noviStatus })
+  });
+  ucitajPorudzbine();
+}
+
+async function obrisi(id) {
+  if (!confirm("Sigurno brisanje?")) return;
+  await fetch(`${API_URL}/porudzbine/${id}`, { method: "DELETE" });
+  ucitajPorudzbine();
+}
+
+/* ================= EDIT LOGIKA ================= */
+function otvoriEdit(p) {
+  editId = p.id;
+  document.getElementById("editProizvod").value = p.proizvod;
+  document.getElementById("editKomentar").value = p.komentar;
+  document.getElementById("editCena").value = p.cena;
+  document.getElementById("editStatus").value = p.status;
+  editPicker.setDate(p.rok);
+  document.getElementById("editModal").style.display = "flex";
+}
+
+function zatvoriEdit() {
+  document.getElementById("editModal").style.display = "none";
+}
+
+async function sacuvajEdit() {
+  const data = {
+    proizvod: document.getElementById("editProizvod").value,
+    komentar: document.getElementById("editKomentar").value,
+    rok: document.getElementById("editRok").value,
+    cena: document.getElementById("editCena").value,
+    status: document.getElementById("editStatus").value
+  };
+
+  const res = await fetch(`${API_URL}/porudzbine/${editId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  if (res.ok) {
+    zatvoriEdit();
+    ucitajPorudzbine();
+  }
+}
+
+function otvoriSliku(url) {
+  document.getElementById("modalImg").src = url;
+  document.getElementById("imgModal").style.display = "flex";
+}
+
+/* Auto-osvežavanje svakih 30 sekundi */
+setInterval(ucitajPorudzbine, 30000);
 ucitajPorudzbine();
 </script>
 
