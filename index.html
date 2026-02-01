@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine v20 - Full Edit</title>
+    <title>Sistem za Porudžbine v21 - Fixed Edit</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -12,12 +12,10 @@
         input, textarea, select, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #333; margin-top: 8px; background: #252525; color: white; font-size: 14px; box-sizing: border-box; }
         button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; padding: 12px; }
         
-        /* Tabela zarade */
         .stats-table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 12px; background: #222; border-radius: 8px; overflow: hidden; }
         .stats-table th { background: #1976d2; color: white; padding: 8px; text-align: left; }
         .stats-table td { padding: 8px; border-bottom: 1px solid #333; color: #ddd; }
 
-        /* Lista kartica */
         #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
         .order-card { width: 4cm; height: 7.5cm; color: #222; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
         
@@ -34,24 +32,22 @@
         .status-bar { padding: 6px; text-align: center; }
         .bar-novo { background: #757575 !important; } .bar-radi { background: #1976d2 !important; } .bar-gotovo { background: #388e3c !important; }
         .status-bar select { background: transparent; border: none; color: white !important; font-weight: 900; width: 100%; cursor: pointer; }
-        .status-bar option { background: white; color: black; }
 
         .actions { display: flex; justify-content: space-around; padding: 6px 0; background: rgba(255,255,255,0.2); }
         .actions span { cursor: pointer; font-size: 18px; }
 
-        /* EDIT MODAL */
         .modal-edit { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 1001; overflow-y: auto; padding: 20px; }
-        .edit-box { background: #1a1a1a; padding: 25px; border-radius: 15px; width: 320px; border: 1px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .edit-box { background: #1a1a1a; padding: 25px; border-radius: 15px; width: 320px; border: 1px solid #333; }
         .edit-label { color: #1976d2; font-size: 12px; font-weight: bold; display: block; margin-top: 10px; text-transform: uppercase; }
 
         .modal-img { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1002; }
-        #modalImg { height: 8cm; width: auto; border-radius: 8px; border: 2px solid white; }
+        #modalImg { height: 8cm; width: auto; border-radius: 8px; }
     </style>
 </head>
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0;">Sistem v20</h2>
+        <h2 style="color: #1976d2; margin: 0;">Sistem v21</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 40px;"></textarea>
         <div style="display: flex; gap: 5px;">
@@ -74,28 +70,16 @@
     <div class="modal-edit" id="editModal">
         <div class="edit-box">
             <h3 style="margin-top:0; color:#1976d2;">Izmeni Porudžbinu</h3>
-            
-            <span class="edit-label">Naziv Proizvoda</span>
-            <input id="editProizvod">
-            
-            <span class="edit-label">Napomena</span>
-            <textarea id="editKomentar" style="height: 60px;"></textarea>
-            
+            <span class="edit-label">Naziv</span><input id="editProizvod">
+            <span class="edit-label">Napomena</span><textarea id="editKomentar" style="height: 50px;"></textarea>
             <div style="display: flex; gap: 5px;">
                 <div style="flex:1"><span class="edit-label">Pismo</span><select id="editPismo"><option>Ćirilica</option><option>Latinica</option></select></div>
                 <div style="flex:1"><span class="edit-label">Stil</span><select id="editStil"><option>Pisano</option><option>Štampano</option></select></div>
             </div>
-            
-            <span class="edit-label">Rok Isporuke</span>
-            <input id="editRok">
-            
-            <span class="edit-label">Cena (RSD)</span>
-            <input id="editCena" type="number">
-
-            <span class="edit-label">Dodaj Nove Slike (Briše stare)</span>
-            <input id="editSlike" type="file" multiple>
-            
-            <button class="primary" onclick="sacuvajEdit()">SAČUVAJ SVE IZMENE</button>
+            <span class="edit-label">Rok Isporuke</span><input id="editRok">
+            <span class="edit-label">Cena</span><input id="editCena" type="number">
+            <span class="edit-label">Nove Slike</span><input id="editSlike" type="file" multiple>
+            <button class="primary" onclick="sacuvajEdit()">SAČUVAJ IZMENE</button>
             <button style="background: #444; margin-top: 10px;" onclick="document.getElementById('editModal').style.display='none'">ODUSTANI</button>
         </div>
     </div>
@@ -172,7 +156,7 @@
             document.getElementById("editPismo").value = p.pismo;
             document.getElementById("editStil").value = p.stil;
             document.getElementById("editCena").value = p.cena || "";
-            if(p.rok) editPicker.setDate(p.rok, true);
+            if(p.rok) editPicker.setDate(p.rok);
             document.getElementById("editModal").style.display = "flex";
         }
 
@@ -182,17 +166,15 @@
             fd.append("komentar", document.getElementById("editKomentar").value);
             fd.append("pismo", document.getElementById("editPismo").value);
             fd.append("stil", document.getElementById("editStil").value);
-            fd.append("rok", document.getElementById("editRok").value);
+            fd.append("rok", document.getElementById("editRok").value); // KLJUČNO ZA DATUM
             fd.append("cena", document.getElementById("editCena").value);
             
-            const fileInput = document.getElementById("editSlike");
-            if(fileInput.files.length > 0) {
-                [...fileInput.files].forEach(f => fd.append("slike", f));
-            }
+            const files = document.getElementById("editSlike").files;
+            if(files.length > 0) [...files].forEach(f => fd.append("slike", f));
 
-            // Šaljemo kao PUT metodu (ili POST ako tvoj server tako zahteva, ali za edit je PUT standard)
             await fetch(`/porudzbine/${trenutniEditId}`, { method: "PUT", body: fd });
             document.getElementById("editModal").style.display = "none";
+            document.getElementById("editSlike").value = "";
             ucitajPorudzbine();
         }
 
