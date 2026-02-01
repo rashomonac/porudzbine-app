@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine v12</title>
+    <title>Sistem za Porudžbine v13</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -16,7 +16,6 @@
         
         .sort-box { margin-top: 25px; padding-top: 15px; border-top: 1px solid #333; }
         .btn-sort { background: #333; font-size: 12px; padding: 8px; margin-top: 8px; cursor: pointer; border: 1px solid #444; text-align: center; }
-        .btn-sort:hover { background: #444; }
 
         #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
 
@@ -36,10 +35,7 @@
         .bar-radi { background: #2196f3 !important; color: white !important; }
         .bar-gotovo { background: #4caf50 !important; color: white !important; }
 
-        .status-bar select { 
-            background: transparent; border: none; color: inherit; font-weight: bold; 
-            padding: 0; width: auto; font-size: 12px; cursor: pointer; outline: none;
-        }
+        .status-bar select { background: transparent; border: none; color: inherit; font-weight: bold; font-size: 12px; cursor: pointer; outline: none; }
         .status-bar select option { background: white; color: black; }
 
         .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
@@ -47,22 +43,25 @@
         .card-tags { font-size: 12px; color: #000; font-weight: bold; margin-top: 4px; border-bottom: 1px solid rgba(0,0,0,0.1); }
         .card-date { font-size: 12px; font-weight: bold; color: #000; margin-top: 5px; }
         .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 8px 0; height: 75px; }
-        .card-images img { width: 100%; height: 35px; object-fit: cover; border-radius: 4px; }
+        .card-images img { width: 100%; height: 35px; object-fit: cover; border-radius: 4px; cursor: pointer; }
 
         .card-bottom { margin-top: auto; }
         .price-tag { font-weight: bold; font-size: 15px; color: #000; text-align: center; padding-bottom: 5px; }
         .actions { display: flex; justify-content: space-around; padding: 6px 0; border-top: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.05); }
         .actions span { cursor: pointer; font-size: 18px; }
 
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        /* MODAL ZA SLIKU - FIX VISINA 8CM */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
         .modal-box { background: #1e1e1e; padding: 20px; border-radius: 15px; width: 320px; color: white; }
-        .modal-box label { display: block; font-size: 12px; color: #1976d2; margin-top: 12px; font-weight: bold; }
+        #modalImg { height: 8cm; width: auto; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+
+        .modal-edit { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
     </style>
 </head>
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0 0 15px 0; font-size: 18px;">Nova Porudžbina</h2>
+        <h2 style="color: #1976d2; margin: 0 0 15px 0;">Nova Porudžbina</h2>
         <input id="proizvod" placeholder="Naziv proizvoda">
         <textarea id="komentar" placeholder="Napomena..." style="height: 50px;"></textarea>
         <div style="display: flex; gap: 5px;">
@@ -73,11 +72,9 @@
         <input id="cena" type="number" placeholder="Cena (RSD)">
         <input id="slike" type="file" multiple>
         <span class="hint">Maksimalno 4 slike</span>
-        
         <button class="primary" onclick="dodajPorudzbinu()">DODAJ</button>
 
         <div class="sort-box">
-            <div style="font-size: 12px; color: #1976d2; font-weight: bold;">Sortiraj listu:</div>
             <button class="btn-sort" onclick="promeniSort('id')">🕒 Po vremenu unosa</button>
             <button class="btn-sort" onclick="promeniSort('rok')">📅 Po hitnosti roka</button>
         </div>
@@ -85,23 +82,25 @@
 
     <div id="lista"></div>
 
-    <div class="modal" id="editModal">
+    <div class="modal-edit" id="editModal">
         <div class="modal-box">
             <h3 style="margin: 0;">Izmeni porudžbinu</h3>
-            <label>Naziv proizvoda:</label>
+            <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Naziv proizvoda:</label>
             <input id="editProizvod">
-            <label>Napomena:</label>
+            <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Napomena:</label>
             <textarea id="editKomentar" style="height: 60px;"></textarea>
-            <label>Rok isporuke:</label>
+            <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Rok isporuke:</label>
             <input id="editRok">
-            <label>Cena (RSD):</label>
+            <label style="display:block; font-size:12px; color:#1976d2; margin-top:10px;">Cena (RSD):</label>
             <input id="editCena" type="number">
             <button class="primary" onclick="sacuvajEdit()">SAČUVAJ IZMENE</button>
             <button style="background: #444; margin-top: 10px;" onclick="document.getElementById('editModal').style.display='none'">ODUSTANI</button>
         </div>
     </div>
 
-    <div class="modal" id="imgModal" onclick="this.style.display='none'"><img id="modalImg"></div>
+    <div class="modal" id="imgModal" onclick="this.style.display='none'">
+        <img id="modalImg" src="">
+    </div>
 
     <script>
         let trenutniSort = 'id';
@@ -109,10 +108,7 @@
         const editPicker = flatpickr("#editRok", { dateFormat: "d/m/Y", allowInput: true });
         let trenutniEditId = null;
 
-        function promeniSort(tip) {
-            trenutniSort = tip;
-            ucitajPorudzbine();
-        }
+        function promeniSort(tip) { trenutniSort = tip; ucitajPorudzbine(); }
 
         function izracunajBojaKlasu(datumRoka) {
             if (!datumRoka || datumRoka === "Bez roka") return "rok-siguran";
@@ -130,15 +126,12 @@
             try {
                 const res = await fetch("/porudzbine");
                 let data = await res.json();
-                if (trenutniSort === 'id') {
-                    data.sort((a, b) => b.id - a.id);
-                } else {
-                    data.sort((a, b) => {
-                        const dateA = a.rok ? new Date(a.rok.split('/').reverse().join('-')) : new Date(9999,0,1);
-                        const dateB = b.rok ? new Date(b.rok.split('/').reverse().join('-')) : new Date(9999,0,1);
-                        return dateA - dateB;
-                    });
-                }
+                if (trenutniSort === 'id') data.sort((a, b) => b.id - a.id);
+                else data.sort((a, b) => {
+                    const dateA = a.rok ? new Date(a.rok.split('/').reverse().join('-')) : new Date(9999,0,1);
+                    const dateB = b.rok ? new Date(b.rok.split('/').reverse().join('-')) : new Date(9999,0,1);
+                    return dateA - dateB;
+                });
                 const lista = document.getElementById("lista");
                 lista.innerHTML = "";
                 data.forEach(p => {
@@ -174,15 +167,28 @@
             } catch (e) { console.log("Refresh error"); }
         }
 
-        async function sacuvajEdit() {
-            const data = {
-                proizvod: document.getElementById("editProizvod").value,
-                komentar: document.getElementById("editKomentar").value,
-                rok: document.getElementById("editRok").value,
-                cena: document.getElementById("editCena").value
-            };
-            await fetch(`/porudzbine/${trenutniEditId}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify(data) });
-            document.getElementById("editModal").style.display = "none";
+        function prikaziSliku(url) {
+            const m = document.getElementById("imgModal");
+            const img = document.getElementById("modalImg");
+            img.src = url;
+            m.style.display = "flex";
+        }
+
+        async function dodajPorudzbinu() {
+            const fd = new FormData();
+            fd.append("proizvod", document.getElementById("proizvod").value);
+            fd.append("komentar", document.getElementById("komentar").value);
+            fd.append("pismo", document.getElementById("pismo").value);
+            fd.append("stil", document.getElementById("stil").value);
+            fd.append("rok", document.getElementById("rok").value);
+            fd.append("cena", document.getElementById("cena").value);
+            [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
+            await fetch("/porudzbine", { method: "POST", body: fd });
+            document.getElementById("proizvod").value = "";
+            document.getElementById("komentar").value = "";
+            document.getElementById("cena").value = "";
+            document.getElementById("slike").value = "";
+            mainPicker.clear();
             ucitajPorudzbine();
         }
 
@@ -196,24 +202,15 @@
             document.getElementById("editModal").style.display = "flex";
         }
 
-        async function dodajPorudzbinu() {
-            const fd = new FormData();
-            fd.append("proizvod", document.getElementById("proizvod").value);
-            fd.append("komentar", document.getElementById("komentar").value);
-            fd.append("pismo", document.getElementById("pismo").value);
-            fd.append("stil", document.getElementById("stil").value);
-            fd.append("rok", document.getElementById("rok").value);
-            fd.append("cena", document.getElementById("cena").value);
-            [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
-            
-            await fetch("/porudzbine", { method: "POST", body: fd });
-            
-            // RESETOVANJE SVIH POLJA
-            document.getElementById("proizvod").value = "";
-            document.getElementById("komentar").value = "";
-            document.getElementById("cena").value = ""; // OVO JE POPRAVLJENO
-            document.getElementById("slike").value = "";
-            mainPicker.clear();
+        async function sacuvajEdit() {
+            const data = {
+                proizvod: document.getElementById("editProizvod").value,
+                komentar: document.getElementById("editKomentar").value,
+                rok: document.getElementById("editRok").value,
+                cena: document.getElementById("editCena").value
+            };
+            await fetch(`/porudzbine/${trenutniEditId}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify(data) });
+            document.getElementById("editModal").style.display = "none";
             ucitajPorudzbine();
         }
 
@@ -222,14 +219,7 @@
             ucitajPorudzbine();
         }
 
-        async function obrisi(id) {
-            if(confirm("Obriši?")) { await fetch(`/porudzbine/${id}`, { method: "DELETE" }); ucitajPorudzbine(); }
-        }
-
-        function prikaziSliku(url) {
-            document.getElementById("modalImg").src = url;
-            document.getElementById("imgModal").style.display = "flex";
-        }
+        async function obrisi(id) { if(confirm("Obriši?")) { await fetch(`/porudzbine/${id}`, { method: "DELETE" }); ucitajPorudzbine(); } }
 
         setInterval(ucitajPorudzbine, 5000);
         ucitajPorudzbine();
