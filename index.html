@@ -3,103 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Porudžbine</title>
+    <title>Moje Porudžbine</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
-        body{ margin:0; background:#0f0f0f; font-family:Arial; color:white; }
-        .card-form{ position:fixed; top:10px; left:10px; width:260px; background:#1e1e1e; border-radius:12px; padding:15px; z-index:10; }
-        input, textarea, select, button { width:100%; padding:8px; border-radius:6px; border:none; margin-top:8px; font-size:13px; background:#2b2b2b; color:white; }
-        button.primary{ background:#1976d2; font-weight:bold; cursor:pointer; }
-        #lista { margin-left:300px; padding:20px; display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:20px; }
-        .order-card { background:#f5efe6; color:#222; border-radius:14px; padding:12px; display:flex; flex-direction:column; min-height:250px; }
-        .status-novo { background:#ffffff !important; }
-        .status-radi { background:#d8ebff !important; }
-        .status-gotovo { background:#dff3df !important; }
-        .card-images { display:grid; grid-template-columns:repeat(2, 1fr); gap:5px; margin-top:10px; }
-        .card-images img { width:100%; height:50px; object-fit:cover; border-radius:4px; cursor:pointer; }
-        .modal { position:fixed; inset:0; background:rgba(0,0,0,.8); display:none; align-items:center; justify-content:center; z-index:999; }
-        .modal-box { background:#1e1e1e; padding:20px; border-radius:12px; width:300px; }
+        body { margin: 0; background: #121212; font-family: 'Segoe UI', Arial, sans-serif; color: #e0e0e0; }
+        
+        /* FORMA SA STRANE */
+        .card-form { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: #1e1e1e; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.5); overflow-y: auto; }
+        h2 { font-size: 18px; color: #1976d2; margin-bottom: 20px; }
+        input, textarea, select, button { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; margin-top: 10px; background: #2b2b2b; color: white; font-size: 14px; box-sizing: border-box; }
+        button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        button.primary:hover { background: #1565c0; }
+
+        /* LISTA KARTICA */
+        #lista { margin-left: 320px; padding: 30px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
+
+        /* DIZAJN KARTICE */
+        .order-card { background: #fff; color: #333; border-radius: 16px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 20px rgba(0,0,0,0.3); transition: 0.3s; border: 1px solid #ddd; }
+        .order-card:hover { transform: translateY(-5px); }
+        
+        /* BOJE PO STATUSU */
+        .status-novo { border-left: 8px solid #9e9e9e; background: #f9f9f9; }
+        .status-radi { border-left: 8px solid #2196f3; background: #e3f2fd; }
+        .status-gotovo { border-left: 8px solid #4caf50; background: #e8f5e9; }
+
+        .card-header { font-weight: bold; font-size: 16px; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .card-info { font-size: 13px; color: #666; margin-bottom: 10px; }
+        .card-tags { display: flex; gap: 5px; margin-bottom: 10px; }
+        .tag { font-size: 10px; padding: 3px 7px; border-radius: 4px; background: #eee; color: #555; font-weight: bold; text-transform: uppercase; }
+
+        .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin: 10px 0; }
+        .card-images img { width: 100%; height: 60px; object-fit: cover; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .card-images img:hover { opacity: 0.8; }
+
+        .price { font-size: 18px; font-weight: bold; color: #1976d2; margin: 10px 0; }
+        .actions { display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 20px; padding: 5px; width: auto; margin: 0; }
+
+        /* MODAL ZA SLIKU */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; cursor: pointer; }
+        .modal img { max-width: 90%; max-height: 90vh; border-radius: 10px; }
     </style>
 </head>
 <body>
+
     <div class="card-form">
-        <input id="proizvod" placeholder="Proizvod">
-        <textarea id="komentar" placeholder="Komentar"></textarea>
-        <input id="rok" placeholder="Rok (dd/mm/yyyy)">
-        <input id="cena" type="number" placeholder="Cena">
-        <input id="slike" type="file" multiple>
-        <button class="primary" onclick="dodajPorudzbinu()">Dodaj</button>
-    </div>
-    <div id="lista"></div>
-    <div class="modal" id="editModal">
-        <div class="modal-box">
-            <h3>Izmeni</h3>
-            <input id="editProizvod">
-            <select id="editStatus">
-                <option>Novo</option>
-                <option>U izradi</option>
-                <option>Završeno</option>
+        <h2>Nova Porudžbina</h2>
+        <input id="proizvod" placeholder="Naziv proizvoda">
+        <textarea id="komentar" placeholder="Dodatne napomene..."></textarea>
+        
+        <div style="display: flex; gap: 5px;">
+            <select id="pismo">
+                <option>Ćirilica</option>
+                <option>Latinica</option>
             </select>
-            <button class="primary" onclick="sacuvajEdit()">Sačuvaj</button>
-            <button onclick="document.getElementById('editModal').style.display='none'">Zatvori</button>
+            <select id="stil">
+                <option>Pisano</option>
+                <option>Štampano</option>
+            </select>
         </div>
+
+        <input id="rok" placeholder="Izaberi rok">
+        <input id="cena" type="number" placeholder="Cena (RSD)">
+        <input id="slike" type="file" multiple style="background: transparent; border: 1px dashed #555;">
+        
+        <button class="primary" onclick="dodajPorudzbinu()">DODAJ U LISTU</button>
     </div>
+
+    <div id="lista"></div>
+
+    <div class="modal" id="imgModal" onclick="this.style.display='none'">
+        <img id="modalImg" src="">
+    </div>
+
     <script>
-        flatpickr("#rok", { dateFormat: "d/m/Y" });
-        let editId = null;
+        flatpickr("#rok", { dateFormat: "d/m/Y", minDate: "today" });
 
         async function ucitajPorudzbine() {
-            const res = await fetch("/porudzbine");
-            const data = await res.json();
-            const lista = document.getElementById("lista");
-            lista.innerHTML = "";
-            data.forEach(p => {
-                const div = document.createElement("div");
-                div.className = `order-card ${p.status === 'U izradi' ? 'status-radi' : p.status === 'Završeno' ? 'status-gotovo' : 'status-novo'}`;
-                const imgs = (p.slike || "").split(",").filter(Boolean).map(url => `<img src="${url}" onclick="window.open('${url}')">`).join("");
-                div.innerHTML = `<b>${p.proizvod}</b><p>${p.komentar || ''}</p><div class="card-images">${imgs}</div><b>${p.cena || 0} RSD</b>
-                <select onchange="promeniStatus(${p.id}, this.value)"><option ${p.status==='Novo'?'selected':''}>Novo</option><option ${p.status==='U izradi'?'selected':''}>U izradi</option><option ${p.status==='Završeno'?'selected':''}>Završeno</option></select>
-                <button onclick='otvoriEdit(${JSON.stringify(p)})'>✏️</button><button onclick="obrisi(${p.id})">🗑️</button>`;
-                lista.appendChild(div);
-            });
+            try {
+                const res = await fetch("/porudzbine");
+                const data = await res.json();
+                const lista = document.getElementById("lista");
+                lista.innerHTML = "";
+
+                data.forEach(p => {
+                    const div = document.createElement("div");
+                    const statusClass = p.status === 'U izradi' ? 'status-radi' : p.status === 'Završeno' ? 'status-gotovo' : 'status-novo';
+                    div.className = `order-card ${statusClass}`;
+
+                    const slikeHtml = (p.slike || "").split(",").filter(Boolean).map(url => 
+                        `<img src="${url}" onclick="prikaziSliku('${url}')">`
+                    ).join("");
+
+                    div.innerHTML = `
+                        <div>
+                            <div class="card-header">${p.proizvod}</div>
+                            <div class="card-tags">
+                                <span class="tag">${p.pismo}</span>
+                                <span class="tag">${p.stil}</span>
+                            </div>
+                            <div class="card-info">${p.komentar || 'Nema napomene.'}</div>
+                            <div style="font-size: 11px; color: #888;">📅 Rok: ${p.rok || 'Nije postavljen'}</div>
+                        </div>
+
+                        <div class="card-images">${slikeHtml}</div>
+
+                        <div>
+                            <div class="price">${p.cena ? p.cena + ' RSD' : 'Dogovor'}</div>
+                            <select onchange="promeniStatus(${p.id}, this.value)">
+                                <option ${p.status==='Novo'?'selected':''}>Novo</option>
+                                <option ${p.status==='U izradi'?'selected':''}>U izradi</option>
+                                <option ${p.status==='Završeno'?'selected':''}>Završeno</option>
+                            </select>
+                            <div class="actions">
+                                <button class="btn-icon" onclick='alert("Opcija u pripremi")'>✏️</button>
+                                <button class="btn-icon" onclick="obrisi(${p.id})">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                    lista.appendChild(div);
+                });
+            } catch (e) { console.error("Greška:", e); }
         }
 
         async function dodajPorudzbinu() {
+            const btn = document.querySelector('.primary');
+            btn.innerText = "SLANJE...";
+            btn.disabled = true;
+
             const fd = new FormData();
             fd.append("proizvod", document.getElementById("proizvod").value);
             fd.append("komentar", document.getElementById("komentar").value);
+            fd.append("pismo", document.getElementById("pismo").value);
+            fd.append("stil", document.getElementById("stil").value);
             fd.append("rok", document.getElementById("rok").value);
             fd.append("cena", document.getElementById("cena").value);
-            [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
+            
+            const files = document.getElementById("slike").files;
+            for(let i=0; i<files.length; i++) { fd.append("slike", files[i]); }
+
             await fetch("/porudzbine", { method: "POST", body: fd });
+            
+            // Reset forme
+            document.getElementById("proizvod").value = "";
+            document.getElementById("komentar").value = "";
+            document.getElementById("slike").value = "";
+            
+            btn.innerText = "DODAJ U LISTU";
+            btn.disabled = false;
             ucitajPorudzbine();
         }
 
-        async function promeniStatus(id, status) {
-            await fetch(`/porudzbine/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({status}) });
+        async function promeniStatus(id, noviStatus) {
+            await fetch(`/porudzbine/${id}`, { 
+                method: "PUT", 
+                headers: {"Content-Type":"application/json"}, 
+                body: JSON.stringify({ status: noviStatus }) 
+            });
             ucitajPorudzbine();
         }
 
         async function obrisi(id) {
-            if(confirm("Obriši?")) { await fetch(`/porudzbine/${id}`, {method:"DELETE"}); ucitajPorudzbine(); }
+            if(confirm("Da li želite da obrišete ovu porudžbinu?")) {
+                await fetch(`/porudzbine/${id}`, { method: "DELETE" });
+                ucitajPorudzbine();
+            }
         }
 
-        function otvoriEdit(p) {
-            editId = p.id;
-            document.getElementById("editProizvod").value = p.proizvod;
-            document.getElementById("editStatus").value = p.status;
-            document.getElementById("editModal").style.display = "flex";
-        }
-
-        async function sacuvajEdit() {
-            await fetch(`/porudzbine/${editId}`, { 
-                method: "PUT", 
-                headers: {"Content-Type":"application/json"}, 
-                body: JSON.stringify({ proizvod: document.getElementById("editProizvod").value, status: document.getElementById("editStatus").value }) 
-            });
-            document.getElementById("editModal").style.display = "none";
-            ucitajPorudzbine();
+        function prikaziSliku(url) {
+            document.getElementById("modalImg").src = url;
+            document.getElementById("imgModal").style.display = "flex";
         }
 
         ucitajPorudzbine();
