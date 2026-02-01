@@ -3,21 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v23 - Pametno Sortiranje</title>
+    <title>Sistem v24 - Biranje Sortiranja</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         body { margin: 0; background: #0f0f0f; font-family: 'Segoe UI', Arial, sans-serif; color: white; }
-        /* Smanjena polja u formi za više mesta */
-        .card-form { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: #1a1a1a; padding: 15px; box-sizing: border-box; border-right: 1px solid #333; z-index: 100; overflow-y: auto; }
-        input, textarea, select, button { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; margin-top: 5px; background: #252525; color: white; font-size: 13px; box-sizing: border-box; }
-        button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 12px; padding: 10px; }
+        .card-form { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: #1a1a1a; padding: 12px; box-sizing: border-box; border-right: 1px solid #333; z-index: 100; overflow-y: auto; }
+        input, textarea, select, button { width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #333; margin-top: 4px; background: #252525; color: white; font-size: 13px; box-sizing: border-box; }
+        button.primary { background: #1976d2; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; padding: 10px; }
         
-        .stats-table { width: 100%; margin-top: 15px; border-collapse: collapse; font-size: 11px; background: #222; border-radius: 8px; overflow: hidden; }
-        .stats-table th { background: #1976d2; color: white; padding: 6px; text-align: left; }
-        .stats-table td { padding: 6px; border-bottom: 1px solid #333; color: #ddd; }
+        .stats-table { width: 100%; margin-top: 12px; border-collapse: collapse; font-size: 11px; background: #222; border-radius: 8px; overflow: hidden; }
+        .stats-table th { background: #1976d2; color: white; padding: 5px; text-align: left; }
+        .stats-table td { padding: 5px; border-bottom: 1px solid #333; color: #ddd; }
 
-        #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
+        /* Kontrole za sortiranje iznad liste */
+        .controls { margin-left: 300px; padding: 10px 15px 0 15px; display: flex; align-items: center; gap: 10px; }
+        .controls label { font-size: 12px; color: #1976d2; font-weight: bold; text-transform: uppercase; }
+        #sortiranje { width: auto; margin: 0; padding: 5px; background: #1a1a1a; border-color: #444; }
+
+        #lista { margin-left: 300px; padding: 10px 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
         .order-card { width: 4cm; height: 7.5cm; color: #222; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
         
         .rok-siguran { background: #c8e6c9; } .rok-paznja { background: #fff9c4; } .rok-hitno { background: #ffe0b2; } .rok-isteklo { background: #ffcdd2; }
@@ -25,17 +29,14 @@
         .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
         .card-header { font-weight: 900; font-size: 13px; color: #000; text-transform: uppercase; }
         .card-comment { font-size: 11px; color: #333; font-weight: 600; line-height: 1.1; margin: 2px 0; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 2px; }
-        .card-tags { font-size: 10px; font-weight: bold; opacity: 0.8; }
         .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 4px 0; height: 85px; flex-shrink: 0; }
         .card-images img { width: 100%; height: 40px; object-fit: cover; border-radius: 4px; }
 
         .card-bottom { margin-top: auto; }
         .price-tag { font-weight: 900; font-size: 14px; color: #000; text-align: center; padding: 2px 0; }
-
         .status-bar { padding: 2px; text-align: center; height: 20px; display: flex; align-items: center; }
         .bar-novo { background: #757575 !important; } .bar-radi { background: #1976d2 !important; } .bar-gotovo { background: #388e3c !important; }
         .status-bar select { background: transparent; border: none; color: white !important; font-weight: 900; font-size: 11px; width: 100%; cursor: pointer; text-align: center; }
-        .status-bar option { background: white; color: black; }
 
         .actions { display: flex; justify-content: space-around; padding: 4px 0; background: rgba(255,255,255,0.2); }
         .actions span { cursor: pointer; font-size: 16px; }
@@ -43,7 +44,6 @@
         .modal-edit { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1001; }
         .edit-box { background: #1a1a1a; padding: 20px; border-radius: 12px; width: 300px; border: 1px solid #333; }
         .edit-label { color: #1976d2; font-size: 11px; font-weight: bold; display: block; margin-top: 6px; text-transform: uppercase; }
-
         .modal-img { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1002; }
         #modalImg { height: 8cm; width: auto; border-radius: 8px; }
     </style>
@@ -51,7 +51,7 @@
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0; font-size: 18px;">Sistem v23</h2>
+        <h2 style="color: #1976d2; margin: 0; font-size: 17px;">Sistem v24</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 35px;"></textarea>
         <div style="display: flex; gap: 4px;">
@@ -61,12 +61,20 @@
         <input id="rok" placeholder="Rok isporuke">
         <input id="cena" type="number" placeholder="Cena (RSD)">
         <input id="slike" type="file" multiple>
-        <button class="primary" onclick="dodajPorudzbinu()">DODAJ</button>
+        <button class="primary" onclick="dodajPorudzbinu()">DODAJ PORUDŽBINU</button>
 
         <table class="stats-table">
             <thead><tr><th>Mesec</th><th>Zarada (RSD)</th></tr></thead>
             <tbody id="statsBody"></tbody>
         </table>
+    </div>
+
+    <div class="controls">
+        <label>Sortiraj:</label>
+        <select id="sortiranje" onchange="ucitajPorudzbine()">
+            <option value="rok">Po isteku roka (Prioritet)</option>
+            <option value="vreme">Po vremenu unosa (Novije prvo)</option>
+        </select>
     </div>
 
     <div id="lista"></div>
@@ -76,7 +84,7 @@
             <h3 style="margin:0; color:#1976d2;">Izmeni stavku</h3>
             <span class="edit-label">Naziv</span><input id="editProizvod">
             <span class="edit-label">Napomena</span><textarea id="editKomentar" style="height: 40px;"></textarea>
-            <div style="display: flex; gap: 5px;">
+            <div style="display: flex; gap: 4px;">
                 <div style="flex:1"><span class="edit-label">Pismo</span><select id="editPismo"><option>Ćirilica</option><option>Latinica</option></select></div>
                 <div style="flex:1"><span class="edit-label">Stil</span><select id="editStil"><option>Pisano</option><option>Štampano</option></select></div>
             </div>
@@ -94,9 +102,8 @@
         const editPicker = flatpickr("#editRok", { dateFormat: "d/m/Y" });
         let trenutniEditId = null;
 
-        // Pomoćna funkcija za pretvaranje datuma (dd/mm/yyyy) u broj za poređenje
         function datumUBroj(d) {
-            if(!d || d === "Bez roka") return 99999999; 
+            if(!d || d === "Bez roka") return 9999999999999; 
             const [dan, mes, god] = d.split('/').map(Number);
             return new Date(god, mes-1, dan).getTime();
         }
@@ -105,7 +112,9 @@
             try {
                 const res = await fetch("/porudzbine");
                 const data = await res.json();
+                const sortTip = document.getElementById("sortiranje").value;
                 
+                // Statistika
                 const statsBody = document.getElementById("statsBody");
                 statsBody.innerHTML = "";
                 const imenaM = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Avg", "Sep", "Okt", "Nov", "Dec"];
@@ -121,12 +130,16 @@
                     statsBody.innerHTML += `<tr><td>${imenaM[mIdx]} ${gIdx}</td><td>${suma.toLocaleString()}</td></tr>`;
                 }
 
-                // SORTIRANJE: Prvo po roku (hitno napred), pa po ID-u (novije napred)
+                // LOGIKA SORTIRANJA
                 data.sort((a, b) => {
-                    const rokA = datumUBroj(a.rok);
-                    const rokB = datumUBroj(b.rok);
-                    if (rokA !== rokB) return rokA - rokB;
-                    return b.id - a.id; 
+                    if (sortTip === "rok") {
+                        const rokA = datumUBroj(a.rok);
+                        const rokB = datumUBroj(b.rok);
+                        if (rokA !== rokB) return rokA - rokB;
+                        return b.id - a.id; 
+                    } else {
+                        return b.id - a.id; // Po vremenu unosa (ID je auto-increment)
+                    }
                 });
 
                 const lista = document.getElementById("lista");
@@ -162,7 +175,7 @@
                         </div>`;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.error("Greška"); }
+            } catch (e) { console.error("Greška pri učitavanju"); }
         }
 
         function otvoriEdit(p) {
