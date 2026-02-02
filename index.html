@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.3 - Final Fix</title>
+    <title>Sistem v25.3 - Datum Fix</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -19,7 +19,7 @@
 
         .sort-container { margin-top: 15px; padding: 10px 0; border-top: 1px solid #444; }
         #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
-        .order-card { width: 4cm; height: 7.5cm; color: #222; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); position: relative; }
+        .order-card { width: 4cm; height: 7.5cm; color: #222; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
         
         .rok-siguran { background: #c8e6c9; } .rok-paznja { background: #fff9c4; } .rok-hitno { background: #ffe0b2; } .rok-isteklo { background: #ffcdd2; }
         .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -103,7 +103,7 @@
                         const rA = datumUBroj(a.rok); const rB = datumUBroj(b.rok);
                         return rA !== rB ? rA - rB : b.id - a.id;
                     }
-                    return b.id - a.id; // Podrazumevano: Najnovije po ID-u
+                    return b.id - a.id; 
                 });
 
                 const lista = document.getElementById("lista");
@@ -139,7 +139,7 @@
                         </div>`;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.log("Greška pri učitavanju."); }
+            } catch (e) { console.log(e); }
         }
 
         async function dodajPorudzbinu() {
@@ -167,24 +167,26 @@
             document.getElementById("editModal").style.display = "flex";
         }
 
+        // --- POPRAVLJENA FUNKCIJA - SADA ŠALJE DATUM KAO ČIST TEKST ---
         async function sacuvajEdit() {
-            const fd = new FormData();
-            fd.append("proizvod", document.getElementById("editProizvod").value);
-            fd.append("komentar", document.getElementById("editKomentar").value);
-            fd.append("rok", document.getElementById("editRok").value);
-            fd.append("cena", document.getElementById("editCena").value);
+            const updejt = {
+                proizvod: document.getElementById("editProizvod").value,
+                komentar: document.getElementById("editKomentar").value,
+                rok: document.getElementById("editRok").value, // Ovo je ključno polje
+                cena: document.getElementById("editCena").value
+            };
 
             await fetch(`/porudzbine/${trenutniEditId}`, {
                 method: "PUT",
-                body: fd
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updejt)
             });
 
             document.getElementById("editModal").style.display = "none";
-            location.reload(); // Osvežava sve da se vidi promena datuma i boja
+            location.reload(); // Osvežava kartu sa NOVIM datumom
         }
 
         async function promeniStatus(id, s) { 
-            // Šaljemo promenu statusa direktno serveru
             await fetch(`/porudzbine/${id}`, { 
                 method: "PUT", 
                 headers: {"Content-Type":"application/json"}, 
@@ -207,7 +209,6 @@
             } 
         }
 
-        // Osvežavanje na svakih 10 sekundi da ne ometa rad
         setInterval(ucitajPorudzbine, 10000);
         ucitajPorudzbine();
     </script>
