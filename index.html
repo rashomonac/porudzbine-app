@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.3 - Datum Fix</title>
+    <title>Sistem v25.5 - PostgreSQL Sync</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -26,7 +26,7 @@
         .card-header { font-weight: 900; font-size: 13px; color: #000; text-transform: uppercase; }
         .card-comment { font-size: 11px; color: #333; font-weight: 600; line-height: 1.1; margin: 2px 0; }
         .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 5px; height: 85px; }
-        .card-images img { width: 100%; height: 40px; object-fit: cover; border-radius: 4px; }
+        .card-images img { width: 100%; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; }
 
         .card-bottom { margin-top: auto; }
         .price-tag { font-weight: 900; font-size: 14px; color: #000; text-align: center; padding: 2px 0; }
@@ -45,7 +45,7 @@
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0 0 10px 0; font-size: 18px;">Sistem v25.3</h2>
+        <h2 style="color: #1976d2; margin: 0 0 10px 0; font-size: 18px;">Sistem v25.5</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 35px;"></textarea>
         <div style="display: flex; gap: 4px;">
@@ -111,7 +111,7 @@
                 data.forEach(p => {
                     const boja = izracunajBojaKlasu(p.rok);
                     const sKlasa = p.status === 'U izradi' ? 'bar-radi' : p.status === 'Završeno' ? 'bar-gotovo' : 'bar-novo';
-                    const slike = (p.slike || "").split(",").filter(Boolean).slice(0, 4).map(url => `<img src="${url}" onclick="event.stopPropagation(); window.open('${url}', '_blank')">`).join("");
+                    const slike = (p.slike || "").split(",").filter(Boolean).slice(0, 4).map(url => `<img src="${url}" onclick="window.open('${url}', '_blank')">`).join("");
                     
                     const div = document.createElement("div");
                     div.className = `order-card ${boja}`;
@@ -152,8 +152,6 @@
             fd.append("cena", document.getElementById("cena").value);
             [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
             
-            const btn = document.querySelector(".btn-add");
-            btn.innerText = "SLANJE..."; btn.disabled = true;
             await fetch("/porudzbine", { method: "POST", body: fd });
             location.reload(); 
         }
@@ -167,17 +165,19 @@
             document.getElementById("editModal").style.display = "flex";
         }
 
-        // --- POPRAVLJENO: Sada šalje SVE podatke kao paket koji server mora da uvaži ---
         async function sacuvajEdit() {
-            const fd = new FormData();
-            fd.append("proizvod", document.getElementById("editProizvod").value);
-            fd.append("komentar", document.getElementById("editKomentar").value);
-            fd.append("rok", document.getElementById("editRok").value);
-            fd.append("cena", document.getElementById("editCena").value);
+            const data = {
+                proizvod: document.getElementById("editProizvod").value,
+                komentar: document.getElementById("editKomentar").value,
+                rok: document.getElementById("editRok").value,
+                cena: document.getElementById("editCena").value,
+                status: null // COALESCE na serveru će zadržati postojeći status
+            };
 
             await fetch(`/porudzbine/${trenutniEditId}`, {
                 method: "PUT",
-                body: fd // Slanje u FormData formatu popravlja bag sa datumom
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
             });
 
             document.getElementById("editModal").style.display = "none";
@@ -188,7 +188,7 @@
             await fetch(`/porudzbine/${id}`, { 
                 method: "PUT", 
                 headers: {"Content-Type":"application/json"}, 
-                body: JSON.stringify({status:s}) 
+                body: JSON.stringify({ status: s }) 
             }); 
             ucitajPorudzbine(); 
         }
@@ -207,7 +207,6 @@
             } 
         }
 
-        setInterval(ucitajPorudzbine, 10000);
         ucitajPorudzbine();
     </script>
 </body>
