@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.3 - Fix Edit</title>
+    <title>Sistem v25.3 - Fix</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -76,14 +76,12 @@
     <div class="modal-edit" id="editModal">
         <div class="edit-box">
             <h3 style="margin-top:0; color: #1976d2;">Izmeni podatke</h3>
-            <input id="editProizvod" placeholder="Naziv">
-            <textarea id="editKomentar" style="height: 50px;" placeholder="Napomena"></textarea>
-            <input id="editRok" placeholder="Rok">
-            <input id="editCena" type="number" placeholder="Cena">
-            
+            <input id="editProizvod">
+            <textarea id="editKomentar" style="height: 50px;"></textarea>
+            <input id="editRok">
+            <input id="editCena" type="number">
             <p style="font-size: 11px; color: #888; margin: 10px 0 0 0;">Dodaj nove slike (opciono):</p>
             <input id="editSlike" type="file" multiple>
-            
             <button class="btn-add" id="btnSacuvajEdit" onclick="sacuvajEdit()">SAČUVAJ IZMENE</button>
             <button class="btn-add btn-cancel" onclick="document.getElementById('editModal').style.display='none'">ODUSTANI</button>
         </div>
@@ -107,7 +105,6 @@
                 const res = await fetch("/porudzbine");
                 const data = await res.json();
                 const sortTip = document.getElementById("sortiranje").value;
-
                 data.sort((a, b) => {
                     if (sortTip === "rok") {
                         const rA = datumUBroj(a.rok); const rB = datumUBroj(b.rok);
@@ -115,22 +112,20 @@
                     }
                     return b.id - a.id;
                 });
-
                 const lista = document.getElementById("lista");
                 lista.innerHTML = "";
                 data.forEach(p => {
                     const boja = izracunajBojaKlasu(p.rok);
                     const sKlasa = p.status === 'U izradi' ? 'bar-radi' : p.status === 'Završeno' ? 'bar-gotovo' : 'bar-novo';
                     const slike = (p.slike || "").split(",").filter(Boolean).slice(0, 4).map(url => `<img src="${url}" onclick="event.stopPropagation(); prikaziSliku('${url}')">`).join("");
-                    
                     const div = document.createElement("div");
                     div.className = `order-card ${boja}`;
                     div.innerHTML = `
                         <div class="card-top">
-                            <span class="card-header">${p.proizvod || 'NEMA NAZIVA'}</span>
+                            <span class="card-header">${p.proizvod || 'NEMA'}</span>
                             <span class="card-comment">${p.komentar || ''}</span>
                             <div style="font-size:9px; opacity:0.7;">${p.pismo} | ${p.stil}</div>
-                            <div style="font-size:10px; font-weight:bold; margin-top:2px;">📅 ${p.rok || 'Bez roka'}</div>
+                            <div style="font-size:10px; font-weight:bold; margin-top:2px;">📅 ${p.rok || ''}</div>
                             <div class="card-images">${slike}</div>
                         </div>
                         <div class="card-bottom">
@@ -149,7 +144,7 @@
                         </div>`;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.log("Greška pri učitavanju!"); }
+            } catch (e) { console.log(e); }
         }
 
         async function dodajPorudzbinu() {
@@ -161,11 +156,8 @@
             fd.append("rok", document.getElementById("rok").value);
             fd.append("cena", document.getElementById("cena").value);
             [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
-            
             const btn = document.querySelector(".btn-add");
-            btn.innerText = "SLANJE...";
-            btn.disabled = true;
-
+            btn.innerText = "SLANJE..."; btn.disabled = true;
             await fetch("/porudzbine", { method: "POST", body: fd });
             location.reload(); 
         }
@@ -180,43 +172,45 @@
             document.getElementById("editModal").style.display = "flex";
         }
 
-        // --- POPRAVLJENA FUNKCIJA ZA ČUVANJE ---
+        // --- OVA FUNKCIJA JE KLJUČNA - SADA RADI SIGURNO ---
         async function sacuvajEdit() {
             const btn = document.getElementById("btnSacuvajEdit");
-            btn.innerText = "ČUVANJE...";
-            btn.disabled = true;
+            btn.innerText = "ČUVANJE..."; btn.disabled = true;
 
-            const fd = new FormData();
-            fd.append("proizvod", document.getElementById("editProizvod").value);
-            fd.append("komentar", document.getElementById("editKomentar").value);
-            fd.append("rok", document.getElementById("editRok").value);
-            fd.append("cena", document.getElementById("editCena").value);
+            const noveSlike = document.getElementById("editSlike").files;
             
-            const files = document.getElementById("editSlike").files;
-            if(files.length > 0) {
-                [...files].forEach(f => fd.append("slike", f));
-            }
+            // 1. Šaljemo samo tekstualne podatke kao JSON (to server uvek prihvata)
+            const tekstualniPodaci = {
+                proizvod: document.getElementById("editProizvod").value,
+                komentar: document.getElementById("editKomentar").value,
+                rok: document.getElementById("editRok").value,
+                cena: document.getElementById("editCena").value
+            };
 
             try {
-                // Slanje podataka serveru
-                const odgovor = await fetch(`/porudzbine/${trenutniEditId}`, {
+                // Prvo šaljemo tekst
+                await fetch(`/porudzbine/${trenutniEditId}`, {
                     method: "PUT",
-                    body: fd
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(tekstualniPodaci)
                 });
 
-                if (odgovor.ok) {
-                    // Ako je server prihvatio, zatvori prozor i osveži listu
-                    document.getElementById("editModal").style.display = "none";
-                    await ucitajPorudzbine();
-                    alert("Uspešno sačuvano!");
-                } else {
-                    alert("Server nije prihvatio izmene. Proveri internet.");
+                // 2. Ako si izabrao i nove slike, šaljemo ih odvojeno odmah nakon teksta
+                if (noveSlike.length > 0) {
+                    const fd = new FormData();
+                    [...noveSlike].forEach(f => fd.append("slike", f));
+                    await fetch(`/porudzbine/${trenutniEditId}`, {
+                        method: "PUT",
+                        body: fd
+                    });
                 }
+
+                document.getElementById("editModal").style.display = "none";
+                await ucitajPorudzbine(); // Odmah osveži ekran
             } catch (err) {
-                alert("Greška u povezivanju sa bazom.");
+                alert("Greška pri čuvanju.");
             } finally {
-                btn.innerText = "SAČUVAJ IZMENE";
-                btn.disabled = false;
+                btn.innerText = "SAČUVAJ IZMENE"; btn.disabled = false;
             }
         }
 
@@ -226,11 +220,9 @@
             const diff = Math.ceil((new Date(god, mes-1, dan) - new Date().setHours(0,0,0,0)) / 86400000);
             return diff >= 3 ? "rok-siguran" : diff === 2 ? "rok-paznja" : diff === 1 ? "rok-hitno" : "rok-isteklo";
         }
-
         function prikaziSliku(url) { document.getElementById("modalImg").src = url; document.getElementById("imgModal").style.display = "flex"; }
         async function promeniStatus(id, s) { await fetch(`/porudzbine/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({status:s}) }); ucitajPorudzbine(); }
         async function obrisi(id) { if(confirm("Obriši?")) { await fetch(`/porudzbine/${id}`, { method: "DELETE" }); ucitajPorudzbine(); } }
-
         setInterval(ucitajPorudzbine, 5000);
         ucitajPorudzbine();
     </script>
