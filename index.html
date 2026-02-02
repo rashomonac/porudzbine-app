@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.5 - PostgreSQL Sync</title>
+    <title>Sistem v25.6 - Final Sync</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -31,9 +31,33 @@
         .card-bottom { margin-top: auto; }
         .price-tag { font-weight: 900; font-size: 14px; color: #000; text-align: center; padding: 2px 0; }
         
-        .status-bar { padding: 2px; height: 20px; display: flex; align-items: center; justify-content: center; }
-        .bar-novo { background: #757575; } .bar-radi { background: #1976d2; } .bar-gotovo { background: #388e3c; }
-        .status-bar select { background: transparent; border: none; color: white !important; font-weight: 900; font-size: 11px; width: 100%; cursor: pointer; text-align: center; appearance: none; -webkit-appearance: none; margin: 0; padding: 0; }
+        /* STATUS BAR - Vidljive labele */
+        .status-bar { padding: 2px; height: 24px; display: flex; align-items: center; justify-content: center; }
+        .bar-novo { background: #616161; } 
+        .bar-radi { background: #1565c0; } 
+        .bar-gotovo { background: #2e7d32; }
+        
+        .status-bar select { 
+            background: transparent; 
+            border: none; 
+            color: white !important; 
+            font-weight: 900; 
+            font-size: 12px; 
+            width: 100%; 
+            cursor: pointer; 
+            text-align: center; 
+            text-align-last: center;
+            appearance: none; 
+            margin: 0; 
+            padding: 2px 0;
+            text-transform: uppercase;
+        }
+
+        /* Vidljivost slova u dropdown listi */
+        .status-bar select option {
+            color: black !important;
+            background-color: white !important;
+        }
 
         .actions { display: flex; justify-content: space-around; padding: 4px 0; background: rgba(255,255,255,0.2); }
         .actions span { cursor: pointer; }
@@ -45,7 +69,7 @@
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0 0 10px 0; font-size: 18px;">Sistem v25.5</h2>
+        <h2 style="color: #1976d2; margin: 0 0 10px 0; font-size: 18px;">Sistem v25.6</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 35px;"></textarea>
         <div style="display: flex; gap: 4px;">
@@ -171,7 +195,7 @@
                 komentar: document.getElementById("editKomentar").value,
                 rok: document.getElementById("editRok").value,
                 cena: document.getElementById("editCena").value,
-                status: null // COALESCE na serveru će zadržati postojeći status
+                status: null 
             };
 
             await fetch(`/porudzbine/${trenutniEditId}`, {
