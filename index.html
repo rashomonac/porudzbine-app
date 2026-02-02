@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.7 - Image Preview</title>
+    <title>Sistem v25.8 - Auto Refresh</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -44,11 +44,9 @@
         .actions { display: flex; justify-content: space-around; padding: 4px 0; background: rgba(255,255,255,0.2); }
         .actions span { cursor: pointer; }
 
-        /* MODALI */
         .modal-edit, .modal-img { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1001; }
         .edit-box { background: #1a1a1a; padding: 20px; border-radius: 12px; width: 300px; }
         
-        /* STIL ZA UVEĆANU SLIKU */
         #imgPreviewContent { 
             height: 8cm; 
             width: auto; 
@@ -61,7 +59,7 @@
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0 0 10px 0; font-size: 18px;">Sistem v25.7</h2>
+        <h2 style="color: #1976d2; margin: 0 0 10px 0; font-size: 18px;">Sistem v25.8</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 35px;"></textarea>
         <div style="display: flex; gap: 4px;">
@@ -231,7 +229,11 @@
             } 
         }
 
+        // PRVO UCITAVANJE
         ucitajPorudzbine();
+
+        // AUTOMATSKO OSVEZAVANJE LISTE SVAKIH 5 SEKUNDI
+        setInterval(ucitajPorudzbine, 5000);
     </script>
 </body>
 </html>
