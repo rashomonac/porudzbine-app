@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.3 - Clean</title>
+    <title>Sistem v25.3 - Edit Plus</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -28,6 +28,7 @@
             z-index: 110; 
         }
         .btn-add:active { background: #115293; transform: scale(0.98); }
+        .btn-cancel { background: #444; margin-top: 5px; padding: 8px; }
 
         .sort-container { margin-top: 15px; padding: 10px 0; border-top: 1px solid #444; }
         
@@ -54,7 +55,7 @@
         .actions span { cursor: pointer; }
 
         .modal-edit { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1001; }
-        .edit-box { background: #1a1a1a; padding: 20px; border-radius: 12px; width: 300px; }
+        .edit-box { background: #1a1a1a; padding: 20px; border-radius: 12px; width: 320px; }
         .modal-img { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1002; }
         #modalImg { height: 8cm; width: auto; border-radius: 8px; }
     </style>
@@ -78,8 +79,8 @@
         <div class="sort-container">
             <span style="font-size: 11px; color:#1976d2; font-weight:bold;">SORTIRANJE LISTE:</span>
             <select id="sortiranje" onchange="ucitajPorudzbine()">
-                <option value="rok">Po roku (Hitno prvo)</option>
                 <option value="vreme">Po vremenu (Novo prvo)</option>
+                <option value="rok">Po roku (Hitno prvo)</option>
             </select>
         </div>
     </div>
@@ -88,13 +89,15 @@
 
     <div class="modal-edit" id="editModal">
         <div class="edit-box">
-            <h3 style="margin-top:0;">Izmeni</h3>
+            <h3 style="margin-top:0; color: #1976d2;">Izmeni porudžbinu</h3>
             <input id="editProizvod">
             <textarea id="editKomentar" style="height: 50px;"></textarea>
             <input id="editRok">
             <input id="editCena" type="number">
-            <button class="btn-add" onclick="sacuvajEdit()">SAČUVAJ</button>
-            <button onclick="document.getElementById('editModal').style.display='none'" style="margin-top:10px;">ZATVORI</button>
+            <label style="font-size: 11px; color: #888; margin-top: 10px; display: block;">Dodaj nove slike:</label>
+            <input id="editSlike" type="file" multiple>
+            <button class="btn-add" id="btnSacuvajEdit" onclick="sacuvajEdit()">SAČUVAJ IZMENE</button>
+            <button class="btn-add btn-cancel" onclick="document.getElementById('editModal').style.display='none'">ZATVORI</button>
         </div>
     </div>
 
@@ -122,6 +125,7 @@
                         const rA = datumUBroj(a.rok); const rB = datumUBroj(b.rok);
                         return rA !== rB ? rA - rB : b.id - a.id;
                     }
+                    // Po vremenu (b.id - a.id jer veći ID znači noviji unos)
                     return b.id - a.id;
                 });
 
@@ -184,22 +188,36 @@
             document.getElementById("editProizvod").value = p.proizvod;
             document.getElementById("editKomentar").value = p.komentar || "";
             document.getElementById("editCena").value = p.cena || "";
+            document.getElementById("editSlike").value = ""; // Resetuj input za slike
             if(p.rok) editPicker.setDate(p.rok);
             document.getElementById("editModal").style.display = "flex";
         }
 
         async function sacuvajEdit() {
-            const data = {
-                proizvod: document.getElementById("editProizvod").value,
-                komentar: document.getElementById("editKomentar").value,
-                rok: document.getElementById("editRok").value,
-                cena: document.getElementById("editCena").value
-            };
+            const btn = document.getElementById("btnSacuvajEdit");
+            btn.innerText = "ČUVANJE...";
+            btn.disabled = true;
+
+            const fd = new FormData();
+            fd.append("proizvod", document.getElementById("editProizvod").value);
+            fd.append("komentar", document.getElementById("editKomentar").value);
+            fd.append("rok", document.getElementById("editRok").value);
+            fd.append("cena", document.getElementById("editCena").value);
+            
+            // Dodavanje novih slika ako su izabrane
+            const files = document.getElementById("editSlike").files;
+            if(files.length > 0) {
+                [...files].forEach(f => fd.append("slike", f));
+            }
+
+            // Koristimo FormData umesto JSON-a jer šaljemo fajlove
             await fetch(`/porudzbine/${trenutniEditId}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
+                body: fd 
             });
+
+            btn.innerText = "SAČUVAJ IZMENE";
+            btn.disabled = false;
             document.getElementById("editModal").style.display = "none";
             ucitajPorudzbine();
         }
