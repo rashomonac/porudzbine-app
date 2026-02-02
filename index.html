@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.3 - Button Fix</title>
+    <title>Sistem v25.3 - Clean</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -11,7 +11,6 @@
         .card-form { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: #1a1a1a; padding: 12px; box-sizing: border-box; border-right: 1px solid #333; z-index: 100; overflow-y: auto; }
         input, textarea, select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; margin-top: 5px; background: #252525; color: white; font-size: 13px; box-sizing: border-box; }
         
-        /* OVO DUGME SADA RADI 100% */
         .btn-add { 
             width: 100%; 
             background: #1976d2; 
@@ -26,13 +25,9 @@
             font-size: 14px;
             display: block;
             position: relative;
-            z-index: 110; /* Iznad svega ostalog u formi */
+            z-index: 110; 
         }
         .btn-add:active { background: #115293; transform: scale(0.98); }
-
-        .stats-table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 11px; background: #222; border-radius: 8px; }
-        .stats-table th { background: #333; padding: 6px; text-align: left; }
-        .stats-table td { padding: 6px; border-bottom: 1px solid #333; }
 
         .sort-container { margin-top: 15px; padding: 10px 0; border-top: 1px solid #444; }
         
@@ -80,11 +75,6 @@
         
         <button class="btn-add" onclick="dodajPorudzbinu()">DODAJ PORUDŽBINU</button>
 
-        <table class="stats-table">
-            <thead><tr><th>Mesec</th><th>Zarada</th></tr></thead>
-            <tbody id="statsBody"></tbody>
-        </table>
-
         <div class="sort-container">
             <span style="font-size: 11px; color:#1976d2; font-weight:bold;">SORTIRANJE LISTE:</span>
             <select id="sortiranje" onchange="ucitajPorudzbine()">
@@ -126,20 +116,6 @@
                 const res = await fetch("/porudzbine");
                 const data = await res.json();
                 const sortTip = document.getElementById("sortiranje").value;
-                
-                const statsBody = document.getElementById("statsBody");
-                statsBody.innerHTML = "";
-                const dan = new Date();
-                for(let i=0; i<3; i++) {
-                    let d = new Date(dan.getFullYear(), dan.getMonth()-i, 1);
-                    let m = d.getMonth()+1; let g = d.getFullYear();
-                    let suma = data.reduce((acc, p) => {
-                        if(!p.rok) return acc;
-                        const [dR, mR, gR] = p.rok.split('/').map(Number);
-                        return (mR === m && gR === g) ? acc + (Number(p.cena)||0) : acc;
-                    }, 0);
-                    statsBody.innerHTML += `<tr><td>${m}/${g}</td><td>${suma}</td></tr>`;
-                }
 
                 data.sort((a, b) => {
                     if (sortTip === "rok") {
