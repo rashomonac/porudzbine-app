@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.3 - Popravljen Edit</title>
+    <title>Sistem v25.3 - Fix Edit</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -12,28 +12,17 @@
         input, textarea, select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; margin-top: 5px; background: #252525; color: white; font-size: 13px; box-sizing: border-box; }
         
         .btn-add { 
-            width: 100%; 
-            background: #1976d2; 
-            color: white; 
-            border: none; 
-            font-weight: bold; 
-            cursor: pointer; 
-            margin-top: 15px; 
-            padding: 15px; 
-            border-radius: 8px; 
-            text-transform: uppercase;
-            font-size: 14px;
+            width: 100%; background: #1976d2; color: white; border: none; font-weight: bold; cursor: pointer; 
+            margin-top: 15px; padding: 15px; border-radius: 8px; text-transform: uppercase; font-size: 14px;
         }
         .btn-add:active { background: #115293; transform: scale(0.98); }
         .btn-cancel { background: #444; margin-top: 5px; padding: 8px; }
 
         .sort-container { margin-top: 15px; padding: 10px 0; border-top: 1px solid #444; }
-        
         #lista { margin-left: 300px; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(4cm, 1fr)); gap: 3mm; }
         .order-card { width: 4cm; height: 7.5cm; color: #222; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
         
         .rok-siguran { background: #c8e6c9; } .rok-paznja { background: #fff9c4; } .rok-hitno { background: #ffe0b2; } .rok-isteklo { background: #ffcdd2; }
-
         .card-top { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
         .card-header { font-weight: 900; font-size: 13px; color: #000; text-transform: uppercase; }
         .card-comment { font-size: 11px; color: #333; font-weight: 600; line-height: 1.1; margin: 2px 0; }
@@ -160,7 +149,7 @@
                         </div>`;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.log("Greška!"); }
+            } catch (e) { console.log("Greška pri učitavanju!"); }
         }
 
         async function dodajPorudzbinu() {
@@ -191,9 +180,9 @@
             document.getElementById("editModal").style.display = "flex";
         }
 
+        // --- POPRAVLJENA FUNKCIJA ZA ČUVANJE ---
         async function sacuvajEdit() {
             const btn = document.getElementById("btnSacuvajEdit");
-            const originalniTekst = btn.innerText;
             btn.innerText = "ČUVANJE...";
             btn.disabled = true;
 
@@ -209,22 +198,24 @@
             }
 
             try {
-                // Ovde je bila greška - sada šaljemo FormData na pravu adresu
-                const res = await fetch(`/porudzbine/${trenutniEditId}`, {
+                // Slanje podataka serveru
+                const odgovor = await fetch(`/porudzbine/${trenutniEditId}`, {
                     method: "PUT",
-                    body: fd // Bez headers, browser će sam podesiti sve jer šaljemo FormData
+                    body: fd
                 });
 
-                if(res.ok) {
+                if (odgovor.ok) {
+                    // Ako je server prihvatio, zatvori prozor i osveži listu
                     document.getElementById("editModal").style.display = "none";
-                    ucitajPorudzbine();
+                    await ucitajPorudzbine();
+                    alert("Uspešno sačuvano!");
                 } else {
-                    alert("Greška pri čuvanju na serveru.");
+                    alert("Server nije prihvatio izmene. Proveri internet.");
                 }
             } catch (err) {
-                alert("Došlo je do greške u vezi.");
+                alert("Greška u povezivanju sa bazom.");
             } finally {
-                btn.innerText = originalniTekst;
+                btn.innerText = "SAČUVAJ IZMENE";
                 btn.disabled = false;
             }
         }
@@ -237,22 +228,8 @@
         }
 
         function prikaziSliku(url) { document.getElementById("modalImg").src = url; document.getElementById("imgModal").style.display = "flex"; }
-        
-        async function promeniStatus(id, s) { 
-            await fetch(`/porudzbine/${id}`, { 
-                method: "PUT", 
-                headers: {"Content-Type":"application/json"}, 
-                body: JSON.stringify({status:s}) 
-            }); 
-            ucitajPorudzbine(); 
-        }
-
-        async function obrisi(id) { 
-            if(confirm("Obriši?")) { 
-                await fetch(`/porudzbine/${id}`, { method: "DELETE" }); 
-                ucitajPorudzbine(); 
-            } 
-        }
+        async function promeniStatus(id, s) { await fetch(`/porudzbine/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({status:s}) }); ucitajPorudzbine(); }
+        async function obrisi(id) { if(confirm("Obriši?")) { await fetch(`/porudzbine/${id}`, { method: "DELETE" }); ucitajPorudzbine(); } }
 
         setInterval(ucitajPorudzbine, 5000);
         ucitajPorudzbine();
