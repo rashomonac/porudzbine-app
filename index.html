@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.6 - Final Sync</title>
+    <title>Sistem v25.7 - Image Preview</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -26,50 +26,42 @@
         .card-header { font-weight: 900; font-size: 13px; color: #000; text-transform: uppercase; }
         .card-comment { font-size: 11px; color: #333; font-weight: 600; line-height: 1.1; margin: 2px 0; }
         .card-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 5px; height: 85px; }
-        .card-images img { width: 100%; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; }
+        .card-images img { width: 100%; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; transition: opacity 0.2s; }
+        .card-images img:hover { opacity: 0.8; }
 
         .card-bottom { margin-top: auto; }
         .price-tag { font-weight: 900; font-size: 14px; color: #000; text-align: center; padding: 2px 0; }
         
-        /* STATUS BAR - Vidljive labele */
         .status-bar { padding: 2px; height: 24px; display: flex; align-items: center; justify-content: center; }
-        .bar-novo { background: #616161; } 
-        .bar-radi { background: #1565c0; } 
-        .bar-gotovo { background: #2e7d32; }
+        .bar-novo { background: #616161; } .bar-radi { background: #1565c0; } .bar-gotovo { background: #2e7d32; }
         
         .status-bar select { 
-            background: transparent; 
-            border: none; 
-            color: white !important; 
-            font-weight: 900; 
-            font-size: 12px; 
-            width: 100%; 
-            cursor: pointer; 
-            text-align: center; 
-            text-align-last: center;
-            appearance: none; 
-            margin: 0; 
-            padding: 2px 0;
-            text-transform: uppercase;
+            background: transparent; border: none; color: white !important; font-weight: 900; font-size: 12px; 
+            width: 100%; cursor: pointer; text-align: center; text-align-last: center; appearance: none; margin: 0; padding: 2px 0; text-transform: uppercase;
         }
-
-        /* Vidljivost slova u dropdown listi */
-        .status-bar select option {
-            color: black !important;
-            background-color: white !important;
-        }
+        .status-bar select option { color: black !important; background-color: white !important; }
 
         .actions { display: flex; justify-content: space-around; padding: 4px 0; background: rgba(255,255,255,0.2); }
         .actions span { cursor: pointer; }
 
-        .modal-edit { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1001; }
+        /* MODALI */
+        .modal-edit, .modal-img { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1001; }
         .edit-box { background: #1a1a1a; padding: 20px; border-radius: 12px; width: 300px; }
+        
+        /* STIL ZA UVEĆANU SLIKU */
+        #imgPreviewContent { 
+            height: 8cm; 
+            width: auto; 
+            border-radius: 8px; 
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            cursor: zoom-out;
+        }
     </style>
 </head>
 <body>
 
     <div class="card-form">
-        <h2 style="color: #1976d2; margin: 0 0 10px 0; font-size: 18px;">Sistem v25.6</h2>
+        <h2 style="color: #1976d2; margin: 0 0 10px 0; font-size: 18px;">Sistem v25.7</h2>
         <input id="proizvod" type="text" placeholder="NAZIV PROIZVODA">
         <textarea id="komentar" placeholder="NAPOMENA" style="height: 35px;"></textarea>
         <div style="display: flex; gap: 4px;">
@@ -105,10 +97,21 @@
         </div>
     </div>
 
+    <div class="modal-img" id="imgModal" onclick="this.style.display='none'">
+        <img id="imgPreviewContent" src="" alt="Uvećana slika">
+    </div>
+
     <script>
         const mainPicker = flatpickr("#rok", { dateFormat: "d/m/Y" });
         const editPicker = flatpickr("#editRok", { dateFormat: "d/m/Y" });
         let trenutniEditId = null;
+
+        function prikaziSliku(url) {
+            const modal = document.getElementById('imgModal');
+            const img = document.getElementById('imgPreviewContent');
+            img.src = url;
+            modal.style.display = 'flex';
+        }
 
         function datumUBroj(d) {
             if(!d || d === "Bez roka") return 9999999999999; 
@@ -135,7 +138,7 @@
                 data.forEach(p => {
                     const boja = izracunajBojaKlasu(p.rok);
                     const sKlasa = p.status === 'U izradi' ? 'bar-radi' : p.status === 'Završeno' ? 'bar-gotovo' : 'bar-novo';
-                    const slike = (p.slike || "").split(",").filter(Boolean).slice(0, 4).map(url => `<img src="${url}" onclick="window.open('${url}', '_blank')">`).join("");
+                    const slike = (p.slike || "").split(",").filter(Boolean).slice(0, 4).map(url => `<img src="${url}" onclick="prikaziSliku('${url}')">`).join("");
                     
                     const div = document.createElement("div");
                     div.className = `order-card ${boja}`;
@@ -175,7 +178,6 @@
             fd.append("rok", document.getElementById("rok").value);
             fd.append("cena", document.getElementById("cena").value);
             [...document.getElementById("slike").files].forEach(f => fd.append("slike", f));
-            
             await fetch("/porudzbine", { method: "POST", body: fd });
             location.reload(); 
         }
@@ -197,13 +199,11 @@
                 cena: document.getElementById("editCena").value,
                 status: null 
             };
-
             await fetch(`/porudzbine/${trenutniEditId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
-
             document.getElementById("editModal").style.display = "none";
             location.reload(); 
         }
