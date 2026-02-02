@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem v25.3 - Edit Plus</title>
+    <title>Sistem v25.3 - Popravljen Edit</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -23,9 +23,6 @@
             border-radius: 8px; 
             text-transform: uppercase;
             font-size: 14px;
-            display: block;
-            position: relative;
-            z-index: 110; 
         }
         .btn-add:active { background: #115293; transform: scale(0.98); }
         .btn-cancel { background: #444; margin-top: 5px; padding: 8px; }
@@ -70,17 +67,17 @@
             <select id="pismo"><option>Ćirilica</option><option>Latinica</option></select>
             <select id="stil"><option>Pisano</option><option>Štampano</option></select>
         </div>
-        <input id="rok" placeholder="Rok isporuke">
+        <input id="rok" placeholder="Izaberi rok">
         <input id="cena" type="number" placeholder="Cena (RSD)">
         <input id="slike" type="file" multiple>
         
         <button class="btn-add" onclick="dodajPorudzbinu()">DODAJ PORUDŽBINU</button>
 
         <div class="sort-container">
-            <span style="font-size: 11px; color:#1976d2; font-weight:bold;">SORTIRANJE LISTE:</span>
+            <span style="font-size: 11px; color:#1976d2; font-weight:bold;">REĐANJE LISTE:</span>
             <select id="sortiranje" onchange="ucitajPorudzbine()">
-                <option value="vreme">Po vremenu (Novo prvo)</option>
-                <option value="rok">Po roku (Hitno prvo)</option>
+                <option value="vreme">Prvo nove (po vremenu)</option>
+                <option value="rok">Prvo hitne (po roku)</option>
             </select>
         </div>
     </div>
@@ -89,15 +86,17 @@
 
     <div class="modal-edit" id="editModal">
         <div class="edit-box">
-            <h3 style="margin-top:0; color: #1976d2;">Izmeni porudžbinu</h3>
-            <input id="editProizvod">
-            <textarea id="editKomentar" style="height: 50px;"></textarea>
-            <input id="editRok">
-            <input id="editCena" type="number">
-            <label style="font-size: 11px; color: #888; margin-top: 10px; display: block;">Dodaj nove slike:</label>
+            <h3 style="margin-top:0; color: #1976d2;">Izmeni podatke</h3>
+            <input id="editProizvod" placeholder="Naziv">
+            <textarea id="editKomentar" style="height: 50px;" placeholder="Napomena"></textarea>
+            <input id="editRok" placeholder="Rok">
+            <input id="editCena" type="number" placeholder="Cena">
+            
+            <p style="font-size: 11px; color: #888; margin: 10px 0 0 0;">Dodaj nove slike (opciono):</p>
             <input id="editSlike" type="file" multiple>
+            
             <button class="btn-add" id="btnSacuvajEdit" onclick="sacuvajEdit()">SAČUVAJ IZMENE</button>
-            <button class="btn-add btn-cancel" onclick="document.getElementById('editModal').style.display='none'">ZATVORI</button>
+            <button class="btn-add btn-cancel" onclick="document.getElementById('editModal').style.display='none'">ODUSTANI</button>
         </div>
     </div>
 
@@ -125,7 +124,6 @@
                         const rA = datumUBroj(a.rok); const rB = datumUBroj(b.rok);
                         return rA !== rB ? rA - rB : b.id - a.id;
                     }
-                    // Po vremenu (b.id - a.id jer veći ID znači noviji unos)
                     return b.id - a.id;
                 });
 
@@ -140,10 +138,10 @@
                     div.className = `order-card ${boja}`;
                     div.innerHTML = `
                         <div class="card-top">
-                            <span class="card-header">${p.proizvod || 'NEMA'}</span>
+                            <span class="card-header">${p.proizvod || 'NEMA NAZIVA'}</span>
                             <span class="card-comment">${p.komentar || ''}</span>
                             <div style="font-size:9px; opacity:0.7;">${p.pismo} | ${p.stil}</div>
-                            <div style="font-size:10px; font-weight:bold; margin-top:2px;">📅 ${p.rok || ''}</div>
+                            <div style="font-size:10px; font-weight:bold; margin-top:2px;">📅 ${p.rok || 'Bez roka'}</div>
                             <div class="card-images">${slike}</div>
                         </div>
                         <div class="card-bottom">
@@ -162,7 +160,7 @@
                         </div>`;
                     lista.appendChild(div);
                 });
-            } catch (e) { console.log(e); }
+            } catch (e) { console.log("Greška!"); }
         }
 
         async function dodajPorudzbinu() {
@@ -188,13 +186,14 @@
             document.getElementById("editProizvod").value = p.proizvod;
             document.getElementById("editKomentar").value = p.komentar || "";
             document.getElementById("editCena").value = p.cena || "";
-            document.getElementById("editSlike").value = ""; // Resetuj input za slike
+            document.getElementById("editSlike").value = ""; 
             if(p.rok) editPicker.setDate(p.rok);
             document.getElementById("editModal").style.display = "flex";
         }
 
         async function sacuvajEdit() {
             const btn = document.getElementById("btnSacuvajEdit");
+            const originalniTekst = btn.innerText;
             btn.innerText = "ČUVANJE...";
             btn.disabled = true;
 
@@ -204,22 +203,30 @@
             fd.append("rok", document.getElementById("editRok").value);
             fd.append("cena", document.getElementById("editCena").value);
             
-            // Dodavanje novih slika ako su izabrane
             const files = document.getElementById("editSlike").files;
             if(files.length > 0) {
                 [...files].forEach(f => fd.append("slike", f));
             }
 
-            // Koristimo FormData umesto JSON-a jer šaljemo fajlove
-            await fetch(`/porudzbine/${trenutniEditId}`, {
-                method: "PUT",
-                body: fd 
-            });
+            try {
+                // Ovde je bila greška - sada šaljemo FormData na pravu adresu
+                const res = await fetch(`/porudzbine/${trenutniEditId}`, {
+                    method: "PUT",
+                    body: fd // Bez headers, browser će sam podesiti sve jer šaljemo FormData
+                });
 
-            btn.innerText = "SAČUVAJ IZMENE";
-            btn.disabled = false;
-            document.getElementById("editModal").style.display = "none";
-            ucitajPorudzbine();
+                if(res.ok) {
+                    document.getElementById("editModal").style.display = "none";
+                    ucitajPorudzbine();
+                } else {
+                    alert("Greška pri čuvanju na serveru.");
+                }
+            } catch (err) {
+                alert("Došlo je do greške u vezi.");
+            } finally {
+                btn.innerText = originalniTekst;
+                btn.disabled = false;
+            }
         }
 
         function izracunajBojaKlasu(d) {
@@ -230,8 +237,22 @@
         }
 
         function prikaziSliku(url) { document.getElementById("modalImg").src = url; document.getElementById("imgModal").style.display = "flex"; }
-        async function promeniStatus(id, s) { await fetch(`/porudzbine/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({status:s}) }); ucitajPorudzbine(); }
-        async function obrisi(id) { if(confirm("Obriši?")) { await fetch(`/porudzbine/${id}`, { method: "DELETE" }); ucitajPorudzbine(); } }
+        
+        async function promeniStatus(id, s) { 
+            await fetch(`/porudzbine/${id}`, { 
+                method: "PUT", 
+                headers: {"Content-Type":"application/json"}, 
+                body: JSON.stringify({status:s}) 
+            }); 
+            ucitajPorudzbine(); 
+        }
+
+        async function obrisi(id) { 
+            if(confirm("Obriši?")) { 
+                await fetch(`/porudzbine/${id}`, { method: "DELETE" }); 
+                ucitajPorudzbine(); 
+            } 
+        }
 
         setInterval(ucitajPorudzbine, 5000);
         ucitajPorudzbine();
