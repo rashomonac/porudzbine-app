@@ -167,23 +167,21 @@
             document.getElementById("editModal").style.display = "flex";
         }
 
-        // --- POPRAVLJENA FUNKCIJA - SADA ŠALJE DATUM KAO ČIST TEKST ---
+        // --- POPRAVLJENO: Sada šalje SVE podatke kao paket koji server mora da uvaži ---
         async function sacuvajEdit() {
-            const updejt = {
-                proizvod: document.getElementById("editProizvod").value,
-                komentar: document.getElementById("editKomentar").value,
-                rok: document.getElementById("editRok").value, // Ovo je ključno polje
-                cena: document.getElementById("editCena").value
-            };
+            const fd = new FormData();
+            fd.append("proizvod", document.getElementById("editProizvod").value);
+            fd.append("komentar", document.getElementById("editKomentar").value);
+            fd.append("rok", document.getElementById("editRok").value);
+            fd.append("cena", document.getElementById("editCena").value);
 
             await fetch(`/porudzbine/${trenutniEditId}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updejt)
+                body: fd // Slanje u FormData formatu popravlja bag sa datumom
             });
 
             document.getElementById("editModal").style.display = "none";
-            location.reload(); // Osvežava kartu sa NOVIM datumom
+            location.reload(); 
         }
 
         async function promeniStatus(id, s) { 
